@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .result {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>EdTech Accessibility Hub - Upload Test</h1>
+    <form id="uploadForm">
+        <input type="file" id="fileInput" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg">
+        <button type="submit">Upload</button>
+    </form>
+    <div id="status"></div>
+    <h3>Text Content:</h3>
+    <div id="textContent" class="result"></div>
+    <h3>Audio:</h3>
+    <div id="audioPlayer"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById('fileInput');
+            const status = document.getElementById('status');
+            const textContent = document.getElementById('textContent');
+            const audioPlayer = document.getElementById('audioPlayer');
+            
+            if (!fileInput.files[0]) {
+                status.textContent = 'Please select a file first.';
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            status.textContent = 'Uploading...';
+            
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    status.textContent = 'Upload successful!';
+                    textContent.textContent = data.text_content;
+                    
+                    if (data.audio_available) {
+                        audioPlayer.innerHTML = `
+                            <audio controls>
+                                <source src="${data.audio_path}" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                        `;
+                    } else {
+                        audioPlayer.textContent = 'Audio conversion failed.';
+                    }
+                } else {
+                    status.textContent = `Error: ${data.error || 'Unknown error'}`;
+                }
+            } catch (error) {
+                status.textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>

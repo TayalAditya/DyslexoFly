@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-Bold.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Lexend';
+  src: url('https://fonts.googleapis.com/css2?family=Lexend:wght@300..700&display=swap');
+}
+
+:root {
+  --font-family: Inter var, sans-serif;
+  --font-size: 18px;
+  --line-height: 1.5;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+html.theme-light {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3f4f6;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --accent: #2563eb;
+}
+
+html.theme-cream {
+  --bg-primary: #fffbeb;
+  --bg-secondary: #fef3c7;
+  --text-primary: #422006;
+  --text-secondary: #78350f;
+  --accent: #0c4a6e;
+}
+
+html.theme-dark {
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --text-primary: #f9fafb;
+  --text-secondary: #e5e7eb;
+  --accent: #93c5fd;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.accessible-content {
+  max-width: 70ch;
+  margin: 0 auto;
+}
+
+/* Dyslexia-friendly text class */
+.dyslexic-friendly-text {
+  letter-spacing: 0.05em;
+  word-spacing: 0.1em;
+}
