@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -11,6 +11,22 @@ export default function Upload() {
   const [error, setError] = useState("")
   const fileInputRef = useRef(null)
   const router = useRouter()
+
+  useEffect(() => {
+    testBackendConnection();
+  }, []);
+
+  const testBackendConnection = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:5000/');
+      const text = await response.text();
+      console.log('Backend connection successful:', text);
+      setError(''); // Clear any previous errors
+    } catch (err) {
+      console.error('Backend connection failed:', err);
+      setError('Cannot connect to backend server. Please ensure it is running at http://127.0.0.1:5000');
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -49,7 +65,9 @@ export default function Upload() {
       setUploadProgress(100)
       
       if (!response.ok) {
-        throw new Error('Upload failed')
+        // Try to get error message from response
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Upload failed with status: ${response.status}`);
       }
       
       const data = await response.json()
@@ -60,9 +78,10 @@ export default function Upload() {
       }, 500)
       
     } catch (err) {
-      setError(err.message)
-      setIsUploading(false)
-      setUploadProgress(0)
+      console.error("Upload error:", err);
+      setError(err.message || 'Connection error. Is the backend server running?');
+      setIsUploading(false);
+      setUploadProgress(0);
     }
   }
 
