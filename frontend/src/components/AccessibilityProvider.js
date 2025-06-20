@@ -2,7 +2,6 @@
 
 import { createContext, useState, useEffect, useContext } from 'react'
 
-// Create context with default values instead of null
 const AccessibilityContext = createContext({
   fontFamily: 'Inter var, sans-serif',
   setFontFamily: () => {},
@@ -24,7 +23,7 @@ export default function AccessibilityProvider({ children }) {
   const [lineSpacing, setLineSpacing] = useState('normal')
   const [theme, setTheme] = useState('light')
   
-  // Font size mapping
+  // Font size in pixels based on selection
   const fontSizeMap = {
     small: '16px',
     medium: '18px',
@@ -32,7 +31,7 @@ export default function AccessibilityProvider({ children }) {
     'x-large': '22px',
   }
   
-  // Line spacing mapping
+  // Line height based on selection
   const lineSpacingMap = {
     condensed: '1.3',
     normal: '1.5',
@@ -40,7 +39,7 @@ export default function AccessibilityProvider({ children }) {
     'extra-spaced': '2.0',
   }
   
-  // Apply settings to document
+  // Apply settings to the document
   useEffect(() => {
     document.documentElement.style.setProperty('--font-family', fontFamily)
     document.documentElement.style.setProperty('--font-size', fontSizeMap[fontSize])
@@ -63,7 +62,7 @@ export default function AccessibilityProvider({ children }) {
       if (savedSpacing) setLineSpacing(savedSpacing)
       if (savedTheme) setTheme(savedTheme)
     } catch (e) {
-      console.error('Could not load accessibility settings:', e)
+      console.error('Failed to load accessibility settings:', e)
     }
   }, [])
   
@@ -75,11 +74,11 @@ export default function AccessibilityProvider({ children }) {
       localStorage.setItem('lineSpacing', lineSpacing)
       localStorage.setItem('theme', theme)
     } catch (e) {
-      console.error('Could not save accessibility settings:', e)
+      console.error('Failed to save accessibility settings:', e)
     }
   }, [fontFamily, fontSize, lineSpacing, theme])
   
-  const contextValue = {
+  const value = {
     fontFamily,
     setFontFamily,
     fontSize,
@@ -91,7 +90,7 @@ export default function AccessibilityProvider({ children }) {
   }
   
   return (
-    <AccessibilityContext.Provider value={contextValue}>
+    <AccessibilityContext.Provider value={value}>
       {children}
     </AccessibilityContext.Provider>
   )
