@@ -148,6 +148,7 @@ export default function ProjectOverview() {
                             width={64} 
                             height={64} 
                             className="object-cover w-full h-full"
+                            unoptimized
                           />
                         </div>
                       </div>
@@ -199,6 +200,7 @@ export default function ProjectOverview() {
                             width={64} 
                             height={64} 
                             className="object-cover w-full h-full"
+                            unoptimized
                           />
                         </div>
                       </div>
