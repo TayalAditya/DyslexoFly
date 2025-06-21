@@ -8,26 +8,38 @@ import TextPane from '@/components/TextPane'
 import SummaryPane from '@/components/SummaryPane'
 import AudioPane from '@/components/AudioPane'
 
-// Demo documents content - for the results page
+// Demo documents with different summary levels
 const demoDocumentsData = {
   'science-textbook.pdf': { 
     filename: 'Science Textbook Chapter.pdf',
     text_content: "The water cycle is the continuous movement of water within Earth and its atmosphere. Water moves from the Earth's surface to the atmosphere through evaporation and transpiration. It then returns to the surface as precipitation. This cycle includes: evaporation, condensation, precipitation, infiltration, runoff, and transpiration. The sun drives the entire water cycle and is responsible for its continuous movement. Water that falls on land collects in rivers, lakes, and underground sources. Plants absorb water through their roots and release it through their leaves.",
-    summary: "The water cycle describes how water moves through Earth's systems through processes of evaporation, condensation, precipitation, and collection. This cycle is essential for maintaining Earth's water balance and supporting all life forms.",
+    summaries: {
+      tldr: "The water cycle moves water between Earth and atmosphere through evaporation and precipitation.",
+      standard: "The water cycle describes how water moves through Earth's systems through processes of evaporation, condensation, precipitation, and collection. This cycle is essential for maintaining Earth's water balance.",
+      detailed: "The water cycle is the continuous movement of water within Earth and its atmosphere. It includes six key processes: evaporation, condensation, precipitation, infiltration, runoff, and transpiration. The sun powers this cycle, causing water to evaporate from surface sources, condense as clouds, fall as precipitation, then collect in bodies of water or return to the atmosphere through plant transpiration. This perpetual cycle maintains Earth's water balance and supports all life forms."
+    },
     audio_path: "https://samplelib.com/lib/preview/mp3/sample-3s.mp3",
     audio_available: true
   },
   'history-essay.pdf': { 
     filename: 'History Essay.pdf',
     text_content: "The Industrial Revolution began in Great Britain in the late 1700s. It marked a major turning point in history as manual labor was replaced by machine-based manufacturing. Key inventions included the steam engine by James Watt, the spinning jenny by James Hargreaves, and the power loom by Edmund Cartwright. These innovations transformed how people worked and lived. Cities grew rapidly as people moved from rural areas to work in factories. Working conditions were often dangerous and hours were long. Child labor was common. The revolution eventually spread to other parts of Europe and North America, changing societies forever.",
-    summary: "The Industrial Revolution was a period of rapid industrialization that began in Great Britain in the 18th century and later spread to other countries. It introduced machine manufacturing, improved transportation systems, and created new economic and social structures that transformed society.",
+    summaries: {
+      tldr: "The Industrial Revolution replaced manual labor with machines, starting in Britain in the 1700s.",
+      standard: "The Industrial Revolution was a period of rapid industrialization that began in Great Britain in the 18th century and later spread to other countries. It introduced machine manufacturing and transformed society.",
+      detailed: "The Industrial Revolution began in Great Britain in the late 1700s and represented a fundamental shift from manual production to machine manufacturing. Key innovations like the steam engine, spinning jenny, and power loom transformed production methods and social structures. As industrialization grew, urbanization accelerated with people migrating from rural areas to factory jobs in cities. Working conditions were often hazardous with long hours, including widespread child labor. The revolution's effects eventually spread across Europe and North America, permanently altering economic systems, class structures, and daily life."
+    },
     audio_path: "https://samplelib.com/lib/preview/mp3/sample-3s.mp3",
     audio_available: true
   },
   'story-excerpt.pdf': { 
     filename: 'Short Story Excerpt.pdf',
     text_content: "The old clock on the wall ticked loudly in the quiet room. Sarah sat by the window, watching raindrops race down the glass. It had been three weeks since she received the mysterious letter. 'Meet me where it all began,' it said, nothing more. She knew exactly where that was – the old lighthouse by the sea where they had first met ten years ago. The journey would take her back to her hometown, a place she had avoided for years. Memories flooded back as she packed her small suitcase. Would he still be the same person? Would she? Only time would tell.",
-    summary: "Sarah receives a mysterious letter inviting her to meet someone at a lighthouse where they met ten years ago. She prepares for the journey back to her hometown, reflecting on the past and wondering what this reunion might bring.",
+    summaries: {
+      tldr: "Sarah receives a mysterious invitation to return to a lighthouse from her past.",
+      standard: "Sarah receives a mysterious letter inviting her to meet someone at a lighthouse where they met ten years ago. She prepares for the journey back to her hometown, reflecting on the past.",
+      detailed: "Sarah sits watching rain while contemplating a mysterious letter she received three weeks ago. The note simply says 'Meet me where it all began,' referring to an old lighthouse where she met someone significant ten years earlier. This journey will force her to return to her hometown, a place she has deliberately avoided for years. As she prepares for the trip, she's filled with memories and uncertainty about how both she and the other person may have changed over time. The story creates tension around this upcoming reunion and confrontation with her past."
+    },
     audio_path: "https://samplelib.com/lib/preview/mp3/sample-3s.mp3",
     audio_available: true
   }
@@ -39,6 +51,7 @@ export default function Results() {
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState('text')
   const [currentPlayingIndex, setCurrentPlayingIndex] = useState(null)
+  const [summaryLevel, setSummaryLevel] = useState('standard')
   const searchParams = useSearchParams()
   const fileId = searchParams.get('id')
   
@@ -65,7 +78,11 @@ export default function Results() {
       setResult({
         filename: fileId,
         text_content: "This is sample text content from the uploaded document. In a real application, this would be the actual extracted text from your document.",
-        summary: "A short AI-generated summary would appear here. This would typically highlight the main points and key information from the document.",
+        summaries: {
+          tldr: "Brief overview of document content.",
+          standard: "A short AI-generated summary would appear here. This would typically highlight the main points from the document.",
+          detailed: "A more comprehensive summary with additional context and details from the document would be displayed here, covering all major points and supporting information."
+        },
         audio_available: true,
         audio_path: "https://samplelib.com/lib/preview/mp3/sample-3s.mp3" // Demo audio URL
       })
@@ -185,7 +202,77 @@ export default function Results() {
               )}
               
               {activeTab === 'summary' && (
-                <SummaryPane summary={result.summary} />
+                <div className="w-full">
+                  <div className="mb-6 flex items-center justify-center space-x-2">
+                    <button 
+                      onClick={() => setSummaryLevel('tldr')}
+                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                        summaryLevel === 'tldr' 
+                          ? 'bg-indigo-600 text-white' 
+                          : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+                      }`}
+                    >
+                      TL;DR
+                    </button>
+                    <button 
+                      onClick={() => setSummaryLevel('standard')}
+                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                        summaryLevel === 'standard' 
+                          ? 'bg-indigo-600 text-white' 
+                          : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+                      }`}
+                    >
+                      Standard
+                    </button>
+                    <button 
+                      onClick={() => setSummaryLevel('detailed')}
+                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                        summaryLevel === 'detailed' 
+                          ? 'bg-indigo-600 text-white' 
+                          : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+                      }`}
+                    >
+                      Detailed
+                    </button>
+                  </div>
+                  
+                  <div className="mb-8">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium text-indigo-600">Summary Length</span>
+                      <span className="text-sm font-medium text-indigo-900">{summaryLevel === 'tldr' ? 'Brief' : summaryLevel === 'standard' ? 'Standard' : 'Detailed'}</span>
+                    </div>
+                    <div className="relative">
+                      <input 
+                        type="range" 
+                        min="0" 
+                        max="2" 
+                        value={summaryLevel === 'tldr' ? 0 : summaryLevel === 'standard' ? 1 : 2}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value);
+                          if (val === 0) setSummaryLevel('tldr');
+                          else if (val === 1) setSummaryLevel('standard');
+                          else setSummaryLevel('detailed');
+                        }}
+                        className="w-full h-2 bg-indigo-100 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                      />
+                      <div className="flex justify-between text-xs text-indigo-500 mt-1">
+                        <span>Brief</span>
+                        <span>Standard</span>
+                        <span>Detailed</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-blue-50 p-6 rounded-lg border border-blue-100">
+                    <h2 className="text-xl font-semibold text-indigo-900 mb-3">
+                      {summaryLevel === 'tldr' ? 'Quick Overview' : 
+                       summaryLevel === 'standard' ? 'Standard Summary' : 'Detailed Summary'}
+                    </h2>
+                    <div className="prose prose-indigo max-w-none">
+                      <SummaryPane summary={result.summaries[summaryLevel]} />
+                    </div>
+                  </div>
+                </div>
               )}
               
               {activeTab === 'audio' && (
@@ -210,18 +297,24 @@ export default function Results() {
                   </span>
                 </p>
               </div>
+              {/* Optional: You can uncomment these buttons if you want to keep them as disabled/non-functional UI elements
               <div className="flex space-x-2">
                 <button 
-                  className="px-4 py-2 bg-white border border-indigo-200 rounded-md text-sm font-medium text-indigo-700 hover:bg-indigo-50 transition-colors shadow-sm"
+                  className="px-4 py-2 bg-white border border-indigo-200 rounded-md text-sm font-medium text-indigo-400 cursor-not-allowed opacity-70"
+                  disabled
+                  title="Coming soon"
                 >
                   Save to Library
                 </button>
                 <button 
-                  className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-md text-sm font-medium text-white hover:from-indigo-700 hover:to-purple-700 transition-colors shadow-sm"
+                  className="px-4 py-2 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-md text-sm font-medium text-white cursor-not-allowed opacity-70"
+                  disabled
+                  title="Coming soon"
                 >
                   Share Document
                 </button>
               </div>
+              */}
             </div>
           </div>
         </div>
