@@ -1,5 +1,7 @@
 'use client'
 
+export const dynamic = 'force-dynamic'; // Because of Next.js 15+ 
+
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
