@@ -45,69 +45,45 @@ export default function Upload() {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (!file) {
-      setError("Please select a file first")
-      return
+      setError("Please select a file first");
+      return;
     }
 
-    setIsUploading(true)
-    setError("")
-    setUploadProgress(0)
-    setStatus('Preparing file...')
-    
-    const formData = new FormData()
-    formData.append('file', file)
-    
+    setIsUploading(true);
+    setError("");
+    setUploadProgress(10);
+    setStatus('Uploading file...');
+
+    const formData = new FormData();
+    formData.append('file', file);
+
     try {
-      // Simulate processing steps with realistic status updates
-      const simulateProcessing = () => {
-        setTimeout(() => {
-          setUploadProgress(10)
-          setStatus('Uploading file...')
-          
-          setTimeout(() => {
-            setUploadProgress(30)
-            setStatus('Extracting text...')
-            
-            setTimeout(() => {
-              setUploadProgress(60)
-              setStatus('Generating summary...')
-              
-              setTimeout(() => {
-                setUploadProgress(85)
-                setStatus('Creating audio version...')
-              }, 1000)
-            }, 1500)
-          }, 1000)
-        }, 500)
-      }
-      
-      simulateProcessing()
-      
+      // Upload file
       const response = await fetch('http://127.0.0.1:5000/api/upload', {
         method: 'POST',
         body: formData,
-      })
-      
+      });
+
+      setUploadProgress(60);
+      setStatus('Extracting text...');
+
       if (!response.ok) {
-        // Try to get error message from response
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || `Upload failed with status: ${response.status}`);
       }
-      
-      const data = await response.json()
-      
-      setUploadProgress(100)
-      setStatus('Processing complete!')
-      setIsComplete(true)
-      
-      // Short delay to show 100% progress
+
+      const data = await response.json();
+
+      setUploadProgress(100);
+      setStatus('Upload complete!');
+
       setTimeout(() => {
-        router.push(`/results?id=${encodeURIComponent(data.filename)}`)
-      }, 1000)
-      
+        router.push(`/results?id=${encodeURIComponent(data.filename)}`);
+      }, 1000);
+
     } catch (err) {
       console.error("Upload error:", err);
       setError(err.message || 'Connection error. Is the backend server running?');

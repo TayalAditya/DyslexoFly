@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link'
 import { useAccessibility } from '@/components/AccessibilityProvider'
 import TextPane from '@/components/TextPane'
@@ -18,7 +18,7 @@ const demoDocumentsData = {
       standard: "The water cycle describes how water moves through Earth's systems through processes of evaporation, condensation, precipitation, and collection. This cycle is essential for maintaining Earth's water balance.",
       detailed: "The water cycle is the continuous movement of water within Earth and its atmosphere. It includes six key processes: evaporation, condensation, precipitation, infiltration, runoff, and transpiration. The sun powers this cycle, causing water to evaporate from surface sources, condense as clouds, fall as precipitation, then collect in bodies of water or return to the atmosphere through plant transpiration. This perpetual cycle maintains Earth's water balance and supports all life forms."
     },
-    audio_path: "https://samplelib.com/lib/preview/mp3/sample-3s.mp3",
+    audioPath: "https://samplelib.com/lib/preview/mp3/sample-3s.mp3",
     audio_available: true
   },
   'history-essay.pdf': { 
@@ -29,7 +29,7 @@ const demoDocumentsData = {
       standard: "The Industrial Revolution was a period of rapid industrialization that began in Great Britain in the 18th century and later spread to other countries. It introduced machine manufacturing and transformed society.",
       detailed: "The Industrial Revolution began in Great Britain in the late 1700s and represented a fundamental shift from manual production to machine manufacturing. Key innovations like the steam engine, spinning jenny, and power loom transformed production methods and social structures. As industrialization grew, urbanization accelerated with people migrating from rural areas to factory jobs in cities. Working conditions were often hazardous with long hours, including widespread child labor. The revolution's effects eventually spread across Europe and North America, permanently altering economic systems, class structures, and daily life."
     },
-    audio_path: "https://samplelib.com/lib/preview/mp3/sample-3s.mp3",
+    audioPath: "https://samplelib.com/lib/preview/mp3/sample-3s.mp3",
     audio_available: true
   },
   'story-excerpt.pdf': { 
@@ -40,64 +40,200 @@ const demoDocumentsData = {
       standard: "Sarah receives a mysterious letter inviting her to meet someone at a lighthouse where they met ten years ago. She prepares for the journey back to her hometown, reflecting on the past.",
       detailed: "Sarah sits watching rain while contemplating a mysterious letter she received three weeks ago. The note simply says 'Meet me where it all began,' referring to an old lighthouse where she met someone significant ten years earlier. This journey will force her to return to her hometown, a place she has deliberately avoided for years. As she prepares for the trip, she's filled with memories and uncertainty about how both she and the other person may have changed over time. The story creates tension around this upcoming reunion and confrontation with her past."
     },
-    audio_path: "https://samplelib.com/lib/preview/mp3/sample-3s.mp3",
+    audioPath: "https://samplelib.com/lib/preview/mp3/sample-3s.mp3",
     audio_available: true
   }
 }
 
 export default function Results() {
-  const [result, setResult] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const searchParams = useSearchParams();
+  const fileId = searchParams.get('id') || 'sample';
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('text')
   const [currentPlayingIndex, setCurrentPlayingIndex] = useState(null)
   const [summaryLevel, setSummaryLevel] = useState('standard')
-  const searchParams = useSearchParams()
-  const fileId = searchParams.get('id')
+  const [voiceOption, setVoiceOption] = useState({ language: 'en-us', gender: 'female' });
+  const [isTextLoading, setIsTextLoading] = useState(false);
   
-  // Get context with fallback default
-  const { fontFamily = 'Inter var, sans-serif', theme = 'cream' } = useAccessibility()
+  // Get accessibility context - apply to root div
+  const accessibilitySettings = useAccessibility();
   
+  // Add this console log to debug
   useEffect(() => {
-    if (!fileId) {
-      setError("No file ID provided")
-      setLoading(false)
-      return
+    if (result?.audioPath) {
+      console.log('Audio Path:', result.audioPath);
     }
+  }, [result?.audioPath]);
+
+  useEffect(() => {
+    // Load document - NO AUDIO GENERATION
+    const loadDocument = async () => {
+      if (!fileId) return;
+      
+      setLoading(true);
+      setError(null);
+      
+      try {
+        // Check if it's a demo document first
+        if (demoDocumentsData[fileId]) {
+          console.log("Loading demo document:", fileId);
+          setResult(demoDocumentsData[fileId]);
+          setLoading(false);
+          return;
+        }
+        
+        // Regular document from backend
+        console.log("Fetching document from backend:", fileId);
+        const response = await fetch(`http://127.0.0.1:5000/api/documents/${fileId}`);
+        
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error(`Document "${fileId}" not found. Please check if the file exists on the server.`);
+          } else {
+            throw new Error(`Server error: ${response.status}. Please try again later.`);
+          }
+        }
+        
+        const data = await response.json();
+        console.log("Document loaded successfully");
+        
+        // Set result WITHOUT audio progress simulation
+        setResult(data);
+        setLoading(false);
+        
+      } catch (err) {
+        console.error("Error loading document:", err);
+        setError(err.message);
+        setLoading(false);
+      }
+    };
     
-    // Check if this is a demo document
-    if (demoDocumentsData[fileId]) {
-      setResult(demoDocumentsData[fileId])
-      setLoading(false)
-      return
-    }
-    
-    // Try to fetch from backend
-    setTimeout(() => {
-      // Fallback to generic demo content if file not found
-      setResult({
-        filename: fileId,
-        text_content: "This is sample text content from the uploaded document. In a real application, this would be the actual extracted text from your document.",
-        summaries: {
-          tldr: "Brief overview of document content.",
-          standard: "A short AI-generated summary would appear here. This would typically highlight the main points from the document.",
-          detailed: "A more comprehensive summary with additional context and details from the document would be displayed here, covering all major points and supporting information."
-        },
-        audio_available: true,
-        audio_path: "https://samplelib.com/lib/preview/mp3/sample-3s.mp3" // Demo audio URL
-      })
-      setLoading(false)
-    }, 1500)
+    loadDocument();
   }, [fileId])
+
+  // Replace your second useEffect with this version
+  useEffect(() => {
+    const shouldFetchText = 
+      fileId && 
+      !demoDocumentsData[fileId] && 
+      !isTextLoading && 
+      result && 
+      !result.text_content;
+      
+    if (shouldFetchText) {
+      console.log("Fetching extracted text for:", fileId);
+      setIsTextLoading(true);
+      
+      // Add timeout to prevent infinite loading if server doesn't respond
+      const fetchTimeout = setTimeout(() => {
+        console.error("Fetch text timeout - server not responding");
+        setIsTextLoading(false);
+        setResult(prev => ({
+          ...prev,
+          text_content: "Failed to load text content: Server timeout",
+          hasTriedTextFetch: true
+        }));
+      }, 15000); // 15 second timeout
+      
+      fetch(`http://localhost:5000/api/documents/${fileId}/extracted-text`)
+        .then(response => {
+          clearTimeout(fetchTimeout);
+          console.log("Text fetch response status:", response.status);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch text content (${response.status})`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log("Text fetch successful, data:", data);
+          if (data.success && data.text_content) {
+            setResult(prev => ({
+              ...prev,
+              text_content: data.text_content,
+              hasTriedTextFetch: true
+            }));
+          } else {
+            throw new Error('No text content in response');
+          }
+        })
+        .catch(err => {
+          console.error("Error fetching text content:", err);
+          setResult(prev => ({
+            ...prev,
+            text_content: `This document couldn't be processed properly. Error: ${err.message}`,
+            hasTriedTextFetch: true
+          }));
+        })
+        .finally(() => {
+          setIsTextLoading(false);
+        });
+    }
+  }, [fileId, isTextLoading, result]); // Remove hasTriedTextFetch from dependencies
 
   const handleSelectText = (index) => {
     setCurrentPlayingIndex(index)
   }
 
-  const handlePlayingIndexChange = (index) => {
-    setCurrentPlayingIndex(index)
-  }
-
+  // Update the handleVoiceChange function
+  const handleVoiceChange = async (newVoice) => {
+    // Don't make API call for demo content
+    if (demoDocumentsData[fileId]) {
+      console.log("Demo content - voice change not implemented");
+      // Return a resolved promise for demo content
+      return Promise.resolve();
+    }
+    
+    setLoading(true);
+    try {
+      console.log("Requesting audio regeneration with:", newVoice);
+      
+      // Make an API request to regenerate audio with new voice
+      const response = await fetch('http://localhost:5000/api/regenerate-audio', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fileId: fileId,
+          language: newVoice.language,
+          gender: newVoice.gender
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setResult(prev => ({
+          ...prev,
+          audioPath: data.audioPath
+        }));
+        return Promise.resolve();
+      } else {
+        console.error('Failed to regenerate audio:', data.error);
+        return Promise.reject(new Error('Failed to regenerate audio'));
+      }
+    } catch (err) {
+      console.error('Error regenerating audio', err);
+      return Promise.reject(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Debugging useEffect
+  useEffect(() => {
+    if (result) {
+      console.log("Result State:", {
+        filename: result.filename,
+        hasTextContent: !!result.text_content,
+        audioPath: result.audioPath,
+        textLength: result.text_content ? result.text_content.length : 0
+      });
+    }
+  }, [result]);
+  
   if (loading) {
     return (
       <div className="min-h-screen pattern-bg flex items-center justify-center">
@@ -125,10 +261,15 @@ export default function Results() {
     )
   }
   
-  if (!result) return null
+  if (!result) return null;
+  
+  // Apply accessibility settings to the root element
+  const rootStyle = {
+    fontFamily: accessibilitySettings.fontFamily || 'Inter var, sans-serif',
+  };
   
   return (
-    <div className="min-h-screen pattern-bg py-12">
+    <div className="min-h-screen pattern-bg py-12" style={rootStyle}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-indigo-100">
           <div className="px-6 py-4 border-b border-indigo-100 flex justify-between items-center bg-gradient-to-r from-indigo-50 to-purple-50">
@@ -194,11 +335,24 @@ export default function Results() {
             {/* Content based on active tab */}
             <div className="w-full">
               {activeTab === 'text' && (
-                <TextPane 
-                  content={result.text_content}
-                  currentPlayingIndex={currentPlayingIndex}
-                  onSelectText={handleSelectText}
-                />
+                <div className="p-6 bg-white rounded-lg shadow">
+                  {isTextLoading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="mb-4 text-sm text-gray-500">
+                        Text content length: {result.text_content?.length || 0} characters
+                      </p>
+                      <TextPane 
+                        content={result.text_content || "Text was successfully extracted for audio processing."}
+                        currentPlayingIndex={currentPlayingIndex}
+                        onSelectText={handleSelectText}
+                      />
+                    </div>
+                  )}
+                </div>
               )}
               
               {activeTab === 'summary' && (
@@ -276,11 +430,14 @@ export default function Results() {
               )}
               
               {activeTab === 'audio' && (
-                <AudioPane 
-                  audioUrl={result.audio_path}
-                  onPlayingIndexChange={handlePlayingIndexChange}
-                  textContent={result.text_content}
-                />
+                <div className="w-full">
+                  <AudioPane 
+                    audioUrl={result?.audioPath} 
+                    textContent={result?.text_content} 
+                    onPlayingIndexChange={handleSelectText}
+                    onVoiceChange={handleVoiceChange}
+                  />
+                </div>
               )}
             </div>
           </div>
@@ -297,7 +454,7 @@ export default function Results() {
                   </span>
                 </p>
               </div>
-              {/* Optional: You can uncomment these buttons if you want to keep them as disabled/non-functional UI elements
+              {/* Optional: You can uncomment these buttons if you want to keep them as disabled/non-functional UI elements */}
               <div className="flex space-x-2">
                 <button 
                   className="px-4 py-2 bg-white border border-indigo-200 rounded-md text-sm font-medium text-indigo-400 cursor-not-allowed opacity-70"
@@ -314,7 +471,7 @@ export default function Results() {
                   Share Document
                 </button>
               </div>
-              */}
+             
             </div>
           </div>
         </div>
