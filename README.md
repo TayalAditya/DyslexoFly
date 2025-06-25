@@ -48,42 +48,57 @@ Below are visual previews of the **DyslexoFly** platform in action:
 
 ```text
 DyslexoFly/
-├── assets
+├── assets                     # Images for documentation 
 │   ├── img1.png             
 │   ├── img2.png   
 │   ├── img3.png   
 │   ├── img4.png   
 ├── .gitignore
+├── audio_outputs/            # Stores TTS-generated audio files
+│   └── audio.mp3  # Example audio file
 ├── backend/
-│   ├── audio_outputs/              # Stores TTS-generated audio files
-│   ├── services/                   # Backend service modules
-│   │   ├── __pycache__/            # Python cache files
-│   │   ├── __init__.py             # Init file for service package
-│   │   ├── text_processing.py      # Text extraction & preprocessing logic
-│   │   └── tts_service.py          # Text-to-speech logic
-│   ├── static/
-│   │   └── test.html               # Static HTML content
-│   ├── uploads/                    # Uploaded files
-│   │   ├── _file_tracking.txt      # File tracking or metadata
-│   ├── app.py                      # Main Flask/FastAPI application
-│   └── requirements.txt            # Python dependencies
+│   ├── app.py                # Main Flask application
+│   ├── requirements.txt      # Python dependencies
+│   ├── services/
+│   │   ├── __init__.py       # Init file for service package
+│   │   ├── text_processing.py # Text extraction & preprocessing logic
+│   │   ├── tts_service.py    # Text-to-speech conversion logic
+│   │   └── __pycache__/      # Python cache files
+│   ├── speech/               # Speech-related resources
+│   └── static/
+│       └── test.html         # Test page for API testing
 ├── frontend/
 │   ├── .gitignore
-│   ├── .next/                      # Next.js build output
-│   ├── node_modules/               # Node.js dependencies
-│   ├── public/                     # Public static assets
-│   ├── src/                        # React source code
+│   ├── .next/                # Next.js build output
+│   ├── public/               # Public static assets
+│   │   └── fonts/            # Custom fonts including OpenDyslexic
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── about/        # About page
+│   │   │   ├── globals.css   # Global styles
+│   │   │   ├── layout.js     # Root layout component
+│   │   │   ├── page.js       # Home page
+│   │   │   ├── project-overview/ # Project details page
+│   │   │   ├── results/      # Results page (shows processed document)
+│   │   │   └── upload/       # Upload page for documents
+│   │   └── components/
+│   │       ├── AccessibilityMenu.js     # Accessibility controls
+│   │       ├── AccessibilityProvider.js # Context provider
+│   │       ├── AudioPane.jsx           # Audio player with TTS
+│   │       ├── DocumentNavigation.jsx  # Document outline navigation
+│   │       ├── Navbar.jsx             # Navigation header
+│   │       ├── SummaryPane.jsx        # Document summary display
+│   │       └── TextPane.jsx           # Accessible text display
 │   ├── eslint.config.mjs
 │   ├── next-env.d.ts
 │   ├── next.config.ts
-│   ├── package-lock.json
 │   ├── package.json
 │   ├── postcss.config.mjs
 │   ├── README.md
 │   └── tsconfig.json
-├── uploads/                        # [Optional] root-level uploads (can be removed)
-├── venv/                           # Python virtual environment
-└── README.md                       # Project documentation
+├── uploads/                  # Storage for uploaded documents
+│   └── _file_tracking.txt    # File tracking metadata
+└── venv/                     # Python virtual environment
 ```
 
 ---
