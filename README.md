@@ -4,6 +4,12 @@ DyslexoFly is an inclusive EdTech platform built to support dyslexic students by
 
 ---
 
+## 🔍 About Dyslexia
+
+Dyslexia is a neurological learning disability that impairs a person's ability to read, write, and spell, despite normal intelligence. This project aims to support dyslexic learners by offering alternative content formats aligned with their strengths — auditory and visual learning.
+
+---
+
 ## 🧠 Project Overview
 
 Dyslexia affects over 70 million individuals in India alone. DyslexoFly aims to bridge the educational accessibility gap by enabling students to:
@@ -15,16 +21,38 @@ Dyslexia affects over 70 million individuals in India alone. DyslexoFly aims to 
 
 ---
 
-## 🔍 About Dyslexia
+## 🖼️ Project Snapshots
 
-Dyslexia is a neurological learning disability that impairs a person's ability to read, write, and spell, despite normal intelligence. This project aims to support dyslexic learners by offering alternative content formats aligned with their strengths — auditory and visual learning.
+Below are visual previews of the **DyslexoFly** platform in action:
 
----
+### 🔹 Home Page
+
+![Home Page](./assets/img1.png)
+
+### 🔹 Upload Page
+
+![Upload Page](./assets/img2.png)
+
+### 🔹 Dyslexia-Friendly Text Rendering
+
+![Dyslexic Text View](./assets/img3.png)
+
+### 🔹 Audio
+
+![Audio](./assets/img4.png)
+
+> These images showcase the platform’s core features: file upload, text-to-speech and accessibility-friendly rendering.
+
 
 ## 📁 Directory Structure
 
 ```text
 DyslexoFly/
+├── assets
+│   ├── img1.png             
+│   ├── img2.png   
+│   ├── img3.png   
+│   ├── img4.png   
 ├── .gitignore
 ├── backend/
 │   ├── audio_outputs/              # Stores TTS-generated audio files
@@ -59,6 +87,43 @@ DyslexoFly/
 ```
 
 ---
+
+## ▶ How to Run the Project
+
+This section explains how to run the **backend**, **frontend**, and configure **Firebase**.
+
+---
+
+###  Backend Setup 
+
+```bash
+# 1. Navigate to the backend directory
+cd backend
+
+# 2. Install backend dependencies
+pip install -r requirements.txt
+
+# 3. Run the backend server
+python app.py
+```
+
+###  Frontend Setup
+
+```bash
+# 1. Navigate to the frontend directory
+cd frontend
+
+# 2. Install Node.js dependencies
+npm install
+
+# 3. Start the frontend development server
+npm run dev
+
+# 4. Open in your browser
+http://localhost:3000
+
+```
+---
 ## 👥 Team Details
 
 **Team Name**: The Kamand Crew
@@ -74,13 +139,4 @@ DyslexoFly/
 | Siddhi Pogakwar    | TTS and Text Anayser          |
    
 ---
-
-## 🖼️ Project Snapshot
-
-Below is a visual preview of the **DyslexoFly** platform in action:
-
-![Project Snapshot](./assets/snapshot.png)
-
-> This image demonstrates the UI/UX of the application, including upload, conversion, and accessibility features.
-
 
