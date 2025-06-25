@@ -12,7 +12,7 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 # Configure upload folder
-UPLOAD_FOLDER = os.path.abspath('C:\\Users\\AdityaTayal\\Desktop\\Projects\\TKK\\uploads')
+UPLOAD_FOLDER = os.path.abspath('C:\\Users\\pogak\\OneDrive\\Desktop\\DyslexoFly\\DyslexoFly\\backend\\uploads')
 print(f"UPLOAD FOLDER PATH: {UPLOAD_FOLDER}")
 
 # Ensure directory exists
