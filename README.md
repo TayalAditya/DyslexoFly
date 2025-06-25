@@ -12,7 +12,7 @@ Dyslexia is a neurological learning disability that impairs a person's ability t
 
 ## 🧠 Project Overview
 
-Dyslexia affects over 70 million individuals in India alone. DyslexoFly aims to bridge the educational accessibility gap by enabling students to:
+It is estimated that 10-15% of children in India are dyslexic, according to the Dyslexia Association of India. DyslexoFly aims to bridge the educational accessibility gap by enabling students to:
 
 -  Convert text to **OpenDyslexic font**
 -  Listen to the content via **Text-to-Speech**
