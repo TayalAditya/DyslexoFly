@@ -18,8 +18,24 @@ const demoDocumentsData = {
       standard: "The water cycle describes how water moves through Earth's systems through processes of evaporation, condensation, precipitation, and collection. This cycle is essential for maintaining Earth's water balance.",
       detailed: "The water cycle is the continuous movement of water within Earth and its atmosphere. It includes six key processes: evaporation, condensation, precipitation, infiltration, runoff, and transpiration. The sun powers this cycle, causing water to evaporate from surface sources, condense as clouds, fall as precipitation, then collect in bodies of water or return to the atmosphere through plant transpiration. This perpetual cycle maintains Earth's water balance and supports all life forms."
     },
-    audioPath: "https://samplelib.com/lib/preview/mp3/sample-3s.mp3",
-    audio_available: true
+    // Default audio path (US female voice)
+    audioPath: "/api/audio/Science_Textbook_Chapter_pdf_en-us_female_1750982208.mp3",
+    audio_available: true,
+    voiceOptions: {
+      "en-us": {
+        "female": "http://127.0.0.1:5000/api/audio/Science_Textbook_Chapter_pdf_en-us_female_1750982208.mp3",
+        "male": "http://127.0.0.1:5000/api/audio/Science_Textbook_Chapter_pdf_en-us_male_1750982299.mp3",
+        "child": "http://127.0.0.1:5000/api/audio/Science_Textbook_Chapter_pdf_en-us_child_1750982247.mp3"
+      },
+      "en-gb": {
+        "female": "http://127.0.0.1:5000/api/audio/Science_Textbook_Chapter_pdf_en-gb_female_1750982491.mp3",
+        "male": "http://127.0.0.1:5000/api/audio/Science_Textbook_Chapter_pdf_en-gb_male_1750982531.mp3"
+      },
+      "hi-in": {
+        "female": "http://127.0.0.1:5000/api/audio/Science_Textbook_Chapter_pdf_hi-in_female_1750982346.mp3",
+        "male": "http://127.0.0.1:5000/api/audio/Science_Textbook_Chapter_pdf_hi-in_male_1750982426.mp3"
+      }
+    }
   },
   'history-essay.pdf': { 
     filename: 'History Essay.pdf',
@@ -29,8 +45,23 @@ const demoDocumentsData = {
       standard: "The Industrial Revolution was a period of rapid industrialization that began in Great Britain in the 18th century and later spread to other countries. It introduced machine manufacturing and transformed society.",
       detailed: "The Industrial Revolution began in Great Britain in the late 1700s and represented a fundamental shift from manual production to machine manufacturing. Key innovations like the steam engine, spinning jenny, and power loom transformed production methods and social structures. As industrialization grew, urbanization accelerated with people migrating from rural areas to factory jobs in cities. Working conditions were often hazardous with long hours, including widespread child labor. The revolution's effects eventually spread across Europe and North America, permanently altering economic systems, class structures, and daily life."
     },
-    audioPath: "https://samplelib.com/lib/preview/mp3/sample-3s.mp3",
-    audio_available: true
+    audioPath: "http://127.0.0.1:5000/api/audio/History_Essay_pdf_en-us_female_1750983453.mp3",
+    audio_available: true,
+    voiceOptions: {
+      "en-us": {
+        "female": "http://127.0.0.1:5000/api/audio/History_Essay_pdf_en-us_female_1750983453.mp3",
+        "male": "http://127.0.0.1:5000/api/audio/History_Essay_pdf_en-us_male_1750983462.mp3",
+        "child": "http://127.0.0.1:5000/api/audio/History_Essay_pdf_en-us_child_1750983482.mp3"
+      },
+      "en-gb": {
+        "female": "http://127.0.0.1:5000/api/audio/History_Essay_pdf_en-gb_female_1750983620.mp3",
+        "male": "http://127.0.0.1:5000/api/audio/History_Essay_pdf_en-gb_male_1750983632.mp3"
+      },
+      "hi-in": {
+        "female": "http://127.0.0.1:5000/api/audio/History_Essay_pdf_hi-in_female_1750983586.mp3",
+        "male": "http://127.0.0.1:5000/api/audio/History_Essay_pdf_hi-in_male_1750983602.mp3"
+      }
+    }
   },
   'story-excerpt.pdf': { 
     filename: 'Short Story Excerpt.pdf',
@@ -40,8 +71,23 @@ const demoDocumentsData = {
       standard: "Sarah receives a mysterious letter inviting her to meet someone at a lighthouse where they met ten years ago. She prepares for the journey back to her hometown, reflecting on the past.",
       detailed: "Sarah sits watching rain while contemplating a mysterious letter she received three weeks ago. The note simply says 'Meet me where it all began,' referring to an old lighthouse where she met someone significant ten years earlier. This journey will force her to return to her hometown, a place she has deliberately avoided for years. As she prepares for the trip, she's filled with memories and uncertainty about how both she and the other person may have changed over time. The story creates tension around this upcoming reunion and confrontation with her past."
     },
-    audioPath: "https://samplelib.com/lib/preview/mp3/sample-3s.mp3",
-    audio_available: true
+    audioPath: "http://127.0.0.1:5000/api/audio/Short_Story_Excerpt_pdf_en-us_female_1750984457.mp3",
+    audio_available: true,
+    voiceOptions: {
+      "en-us": {
+        "female": "http://127.0.0.1:5000/api/audio/Short_Story_Excerpt_pdf_en-us_female_1750984457.mp3",
+        "male": "http://127.0.0.1:5000/api/audio/Short_Story_Excerpt_pdf_en-us_male_1750984471.mp3",
+        "child": "http://127.0.0.1:5000/api/audio/Short_Story_Excerpt_pdf_en-us_child_1750984485.mp3"
+      },
+      "en-gb": {
+        "female": "http://127.0.0.1:5000/api/audio/Short_Story_Excerpt_pdf_en-gb_female_1750984522.mp3",
+        "male": "http://127.0.0.1:5000/api/audio/Short_Story_Excerpt_pdf_en-gb_male_1750984539.mp3"
+      },
+      "hi-in": {
+        "female": "http://127.0.0.1:5000/api/audio/Short_Story_Excerpt_pdf_hi-in_female_1750984496.mp3",
+        "male": "http://127.0.0.1:5000/api/audio/Short_Story_Excerpt_pdf_hi-in_male_1750984513.mp3"
+      }
+    }
   }
 }
 
@@ -178,13 +224,29 @@ export default function Results() {
 
   // Update the handleVoiceChange function
   const handleVoiceChange = async (newVoice) => {
-    // Don't make API call for demo content
+    // For demo content, use the pre-recorded audio files
     if (demoDocumentsData[fileId]) {
-      console.log("Demo content - voice change not implemented");
-      // Return a resolved promise for demo content
-      return Promise.resolve();
+      const voiceOptions = demoDocumentsData[fileId].voiceOptions;
+      
+      // Check if this voice option exists
+      if (voiceOptions && 
+          voiceOptions[newVoice.language] && 
+          voiceOptions[newVoice.language][newVoice.gender]) {
+        
+        // Update the audioPath in the result state
+        setResult(prev => ({
+          ...prev,
+          audioPath: voiceOptions[newVoice.language][newVoice.gender]
+        }));
+        console.log(`Demo: Changed to ${newVoice.language}-${newVoice.gender} voice`);
+        return Promise.resolve();
+      } else {
+        console.log("Demo: Requested voice not available");
+        return Promise.resolve();
+      }
     }
     
+    // For regular uploads, make the API call as before
     setLoading(true);
     try {
       console.log("Requesting audio regeneration with:", newVoice);
@@ -443,7 +505,7 @@ export default function Results() {
           </div>
           
           <div className="px-6 py-4 bg-gradient-to-r from-indigo-50 to-purple-50 border-t border-indigo-100">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center mb-4">
               <div>
                 <p className="text-sm text-indigo-700 font-medium">
                   <span className="flex items-center">
@@ -454,7 +516,7 @@ export default function Results() {
                   </span>
                 </p>
               </div>
-              {/* Optional: You can uncomment these buttons if you want to keep them as disabled/non-functional UI elements */}
+              
               <div className="flex space-x-2">
                 <button 
                   className="px-4 py-2 bg-white border border-indigo-200 rounded-md text-sm font-medium text-indigo-400 cursor-not-allowed opacity-70"
@@ -471,7 +533,19 @@ export default function Results() {
                   Share Document
                 </button>
               </div>
-             
+            </div>
+            
+            {/* Back to Home Button */}
+            <div className="flex justify-center mt-4">
+              <Link 
+                href="/" 
+                className="inline-flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors shadow-md"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                </svg>
+                Back to Home
+              </Link>
             </div>
           </div>
         </div>

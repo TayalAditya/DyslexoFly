@@ -9,10 +9,11 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app)
 
-# Configure upload folder
-UPLOAD_FOLDER = os.path.abspath('C:\\Users\\AdityaTayal\\Desktop\\Projects\\TKK\\uploads')
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 print(f"UPLOAD FOLDER PATH: {UPLOAD_FOLDER}")
 
 # Ensure directory exists
@@ -369,20 +370,32 @@ def regenerate_audio():
 
 @app.route('/api/audio/<filename>')
 def serve_audio(filename):
-    """Serve audio files"""
-    # Add debugging to see what's happening
-    full_path = os.path.join(app.config['AUDIO_OUTPUTS_DIR'], filename)
-    if os.path.exists(full_path):
-        print(f"Serving audio file: {full_path}")
-        response = send_from_directory(app.config['AUDIO_OUTPUTS_DIR'], filename)
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        return response
-    else:
-        print(f"ERROR: Audio file not found: {full_path}")
-        print(f"Current working directory: {os.getcwd()}")
-        print(f"Looking in directory: {app.config['AUDIO_OUTPUTS_DIR']}")
-        print(f"Files available: {os.listdir(app.config['AUDIO_OUTPUTS_DIR']) if os.path.exists(app.config['AUDIO_OUTPUTS_DIR']) else 'Directory not found'}")
-        return "Audio file not found", 404
+    """Serve audio files with proper path handling and error handling"""
+    try:
+        # Get absolute path to audio file and normalize it
+        filepath = os.path.abspath(os.path.join(app.config['AUDIO_OUTPUTS_DIR'], filename))
+        
+        # Debug path information
+        print(f"Serving audio file: {filepath}")
+        print(f"File exists: {os.path.exists(filepath)}")
+        
+        if os.path.exists(filepath):
+            # Use directory and basename instead of the full path
+            directory = os.path.dirname(filepath)
+            basename = os.path.basename(filepath)
+            
+            # Set CORS headers explicitly
+            response = send_from_directory(directory, basename)
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            response.headers.add('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            return response
+        else:
+            print(f"ERROR: Audio file not found: {filepath}")
+            print(f"Files available in {app.config['AUDIO_OUTPUTS_DIR']}: {os.listdir(app.config['AUDIO_OUTPUTS_DIR'])}")
+            return "Audio file not found", 404
+    except Exception as e:
+        print(f"Error serving audio file: {str(e)}")
+        return str(e), 500
 
 @app.route('/api/documents/<file_id>', methods=['GET'])
 def get_document(file_id):
@@ -570,10 +583,11 @@ def debug_files():
 
 @app.route('/api/audio/cleanup', methods=['POST'])
 def cleanup_audio():
-    """Delete audio file when tab becomes inactive or audio is no longer needed"""
+    """Log cleanup requests but don't actually delete audio files"""
     try:
         data = request.get_json()
         audio_path = data.get('audioPath')
+        playback_completed = data.get('playbackCompleted', False)
         
         if not audio_path:
             return jsonify({"success": False, "error": "No audio path provided"}), 400
@@ -588,22 +602,14 @@ def cleanup_audio():
         full_path = os.path.join(app.config['AUDIO_OUTPUTS_DIR'], filename)
         
         print(f"Request to delete audio file: {full_path}")
+        print(f"Deletion prevented - keeping file for playback")
         
-        if os.path.exists(full_path):
-            os.remove(full_path)
-            print(f"Successfully deleted audio file: {full_path}")
-            
-            # Remove from tracking if present
-            for file_id, data in list(file_tracking.items()):
-                if isinstance(data, dict) and 'audio_paths' in data:
-                    if full_path in data['audio_paths']:
-                        data['audio_paths'].remove(full_path)
-                        print(f"Removed {full_path} from tracking for {file_id}")
-            
-            return jsonify({"success": True, "message": "Audio file deleted"})
-        else:
-            print(f"Audio file not found: {full_path}")
-            return jsonify({"success": False, "error": "Audio file not found"}), 404
+        # DISABLED: Don't actually delete the file
+        # if os.path.exists(full_path):
+        #     os.remove(full_path)
+        
+        # Still return success to keep client happy
+        return jsonify({"success": True, "message": "Audio file cleanup handled"})
     
     except Exception as e:
         print(f"Error in cleanup_audio: {e}")

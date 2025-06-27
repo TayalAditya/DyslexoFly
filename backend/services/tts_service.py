@@ -22,8 +22,11 @@ VOICE_MAP = {
 DEFAULT_LANGUAGE = "en-us"
 DEFAULT_GENDER = "female"
 
-# Fixed audio output directory - use absolute path
-AUDIO_OUTPUT_DIR = r"C:\Users\AdityaTayal\Desktop\Projects\TKK\audio_outputs"
+import os
+
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..'))
+
+AUDIO_OUTPUT_DIR = os.path.join(BASE_DIR, 'audio_outputs')
 os.makedirs(AUDIO_OUTPUT_DIR, exist_ok=True)
 
 # Function to extract text from PDF

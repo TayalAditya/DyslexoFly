@@ -8,6 +8,9 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata = {
   title: 'DyslexoFly | Words take flight, reading feels right!',
   description: 'Making educational content accessible for dyslexic students',
+  icons: {
+    icon: '/favicon.ico',
+  },
 }
 
 export default function RootLayout({ children }) {
@@ -18,12 +21,8 @@ export default function RootLayout({ children }) {
           <div className="min-h-screen flex flex-col">
             <Navbar />
             <main className="flex-grow">{children}</main>
-            <footer className="bg-gray-100">
-              <div className="max-w-7xl mx-auto py-6 px-4 overflow-hidden sm:px-6 lg:px-8">
-                <p className="text-center text-gray-500 text-sm">
-                  &copy; {new Date().getFullYear()} DyslexoFly. All rights reserved.
-                </p>
-              </div>
+            <footer className="bg-gray-100 py-4 text-center text-sm text-gray-600">
+              DyslexoFly © {new Date().getFullYear()} | Making reading accessible for everyone
             </footer>
           </div>
         </AccessibilityProvider>

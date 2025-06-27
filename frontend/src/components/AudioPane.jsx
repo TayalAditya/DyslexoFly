@@ -136,9 +136,19 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
   const processedAudioUrl = useMemo(() => {
     if (!audioUrl) return null;
     
-    // Handle relative URLs from backend
+    // For demo content with absolute URLs, use directly
+    if (audioUrl.startsWith('http')) {
+      return audioUrl;
+    }
+    
+    // For relative URLs from backend, add proper base URL
     if (audioUrl.startsWith('/api/')) {
       return `http://127.0.0.1:5000${audioUrl}`;
+    }
+    
+    // Handle paths that don't have /api/ prefix but should
+    if (!audioUrl.includes('://') && !audioUrl.startsWith('/api/')) {
+      return `http://127.0.0.1:5000/api/audio/${audioUrl.split('/').pop()}`;
     }
     
     return audioUrl;
@@ -436,24 +446,55 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
   }, [isPlaying, processedAudioUrl]);
 
   // Add to your AudioPane.jsx file
-  useEffect(() => {
-    // Function to handle tab visibility change
-    const handleVisibilityChange = () => {
-      if (document.hidden && processedAudioUrl) {
-        // Tab is inactive, clean up audio
+  const [audioFinishedPlaying, setAudioFinishedPlaying] = useState(false);
+
+  // Add this event handler for the audio element
+  const handleAudioEnded = () => {
+    console.log("Audio playback complete");
+    setAudioFinishedPlaying(true);
+    
+    // Now safe to clean up - but add a small delay to ensure file isn't deleted while still in use
+    if (processedAudioUrl) {
+      setTimeout(() => {
         fetch('http://127.0.0.1:5000/api/audio/cleanup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ audioPath: processedAudioUrl }),
+          body: JSON.stringify({ 
+            audioPath: processedAudioUrl,
+            playbackCompleted: true 
+          }),
         })
         .then(response => response.json())
         .then(data => {
-          console.log('Cleanup response:', data);
+          console.log('Cleanup after playback response:', data);
         })
         .catch(error => {
-          console.error('Error cleaning up audio:', error);
+          console.error('Error cleaning up audio after playback:', error);
+        });
+      }, 1000); // Add 1 second delay before cleanup
+    }
+  };
+
+  useEffect(() => {
+    // Function to handle tab visibility change
+    const handleVisibilityChange = () => {
+      if (document.hidden && processedAudioUrl) {
+        // Tab is inactive, but don't delete if still playing
+        // Only mark for cleanup
+        fetch('http://127.0.0.1:5000/api/audio/cleanup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            audioPath: processedAudioUrl,
+            playbackCompleted: audioFinishedPlaying 
+          }),
+        })
+        .catch(error => {
+          console.error('Error marking audio for cleanup:', error);
         });
       }
     };
@@ -465,18 +506,21 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       
-      // Also clean up audio when component unmounts
+      // Clean up audio when component unmounts, but only if playback is done
       if (processedAudioUrl) {
         fetch('http://127.0.0.1:5000/api/audio/cleanup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ audioPath: processedAudioUrl }),
+          body: JSON.stringify({ 
+            audioPath: processedAudioUrl,
+            playbackCompleted: audioFinishedPlaying || true  // Force cleanup on unmount
+          }),
         }).catch(err => console.error('Error cleaning up audio on unmount:', err));
       }
     };
-  }, [processedAudioUrl]);
+  }, [processedAudioUrl, audioFinishedPlaying]);
 
   return (
     <div className="audio-pane relative overflow-hidden rounded-[24px] border border-indigo-200/50 shadow-2xl backdrop-blur-sm p-6 md:p-10 max-w-4xl mx-auto my-8">
@@ -1010,15 +1054,20 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
           const formattedDuration = `${mins}:${secs < 10 ? '0' + secs : secs}`;
           setAudioInfo(prev => ({ ...prev, duration: formattedDuration }));
           
-          console.log("Audio metadata loaded, duration:", audioDuration);
+          // Clear any error state since load succeeded
+          setAudioError(false);
+          console.log("Audio loaded successfully:", processedAudioUrl);
         }}
         onError={(e) => {
-          console.error("Audio failed to load:", processedAudioUrl);
+          console.error("Audio failed to load:", e.target.error, processedAudioUrl);
           setAudioError(true);
         }}
         onPlay={() => setShowWaveform(true)}
         onPause={() => console.log("Audio paused")}
-        onEnded={() => setIsPlaying(false)}
+        onEnded={() => {
+          setIsPlaying(false);
+          handleAudioEnded();
+        }}
       />
       
       {/* Styles */}
@@ -1070,17 +1119,7 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
         @keyframes ping {
           0% {
             transform: scale(1);
-            opacity: 1;
-          }
-          75% {
-            transform: scale(1.2);
-            opacity: 0.7;
-          }
-          100% {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
+            opacity: 
         
         /* Add better font transition */
         .font-dyslexic, .font-sans {
@@ -1173,5 +1212,5 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
         }
       `}</style>
     </div>
-  )
+  );
 }
