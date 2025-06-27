@@ -22,8 +22,6 @@ VOICE_MAP = {
 DEFAULT_LANGUAGE = "en-us"
 DEFAULT_GENDER = "female"
 
-import os
-
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..'))
 
 AUDIO_OUTPUT_DIR = os.path.join(BASE_DIR, 'audio_outputs')
