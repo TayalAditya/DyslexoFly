@@ -296,16 +296,16 @@ export default function Results() {
     }
   }, [result]);
   
-  if (loading) {
-    return (
-      <div className="min-h-screen pattern-bg flex items-center justify-center">
-        <div className="text-center bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div>
-          <p className="mt-4 text-lg font-medium text-indigo-700">Processing your document...</p>
-        </div>
-      </div>
-    )
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="min-h-screen pattern-bg flex items-center justify-center">
+  //       <div className="text-center bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg">
+  //         <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div>
+  //         <p className="mt-4 text-lg font-medium text-indigo-700">Processing your document...</p>
+  //       </div>
+  //     </div>
+  //   )
+  // }
   
   if (error) {
     return (
@@ -485,7 +485,10 @@ export default function Results() {
                        summaryLevel === 'standard' ? 'Standard Summary' : 'Detailed Summary'}
                     </h2>
                     <div className="prose prose-indigo max-w-none">
-                      <SummaryPane summary={result.summaries[summaryLevel]} />
+                      <SummaryPane 
+                        fileId={fileId}  // Pass the file ID
+                        initialSummary={result.summaries[summaryLevel]}  // Pass any initial summary you may have
+                      />
                     </div>
                   </div>
                 </div>

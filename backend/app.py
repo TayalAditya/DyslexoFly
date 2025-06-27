@@ -3,10 +3,11 @@ from flask_cors import CORS
 import os
 from werkzeug.utils import secure_filename
 import time
-from services import tts_service  # Make sure this import exists
+from services import text_processing
 import threading
 from datetime import datetime, timedelta
 from pathlib import Path
+
 
 app = Flask(__name__)
 CORS(app)
@@ -319,25 +320,28 @@ def regenerate_audio():
         # Try to find the actual document file
         document_text = None
         
-        # Check if it's a known fileId with PDF extension
+        # Check if it's a known fileId with supported extensions
         potential_paths = [
             os.path.join(app.config['UPLOAD_FOLDER'], f"{file_id}"),
             os.path.join(app.config['UPLOAD_FOLDER'], f"{file_id}.pdf"),
             os.path.join(app.config['UPLOAD_FOLDER'], f"{file_id}.docx"),
-            os.path.join(app.config['UPLOAD_FOLDER'], f"{file_id}.txt")
+            os.path.join(app.config['UPLOAD_FOLDER'], f"{file_id}.txt"),
+            os.path.join(app.config['UPLOAD_FOLDER'], f"{file_id}.png"),
+            os.path.join(app.config['UPLOAD_FOLDER'], f"{file_id}.jpg"),
+            os.path.join(app.config['UPLOAD_FOLDER'], f"{file_id}.jpeg")
         ]
         
-        # Import the text extraction function
-        from services.tts_service import extract_text_from_pdf
+        # Import the text extraction function from the correct module
+        from services.text_processing import extract_text
         
         # Try to find and extract text from the document
         for doc_path in potential_paths:
             if os.path.exists(doc_path):
                 print(f"Found document at: {doc_path}")
-                if doc_path.endswith('.pdf'):
-                    document_text = extract_text_from_pdf(doc_path)
+                document_text = extract_text(doc_path)
+                if document_text:
+                    print(f"Successfully extracted text: {len(document_text)} characters")
                     break
-                # Add handlers for other file types if needed
         
         # If we couldn't find or extract the document, use fallback text
         if not document_text:
@@ -401,59 +405,46 @@ def serve_audio(filename):
 def get_document(file_id):
     """Get document metadata and text content"""
     try:
-        # Debug the incoming request
-        print(f"GET /api/documents/{file_id} - Looking for file")
+        # Find the upload file path
+        upload_file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_id)
         
-        # Find the upload file path - try multiple possibilities
-        possible_paths = [
-            os.path.join(app.config['UPLOAD_FOLDER'], file_id),
-            os.path.join(app.config['UPLOAD_FOLDER'], os.path.basename(file_id))
-        ]
-        
-        # Print files in upload folder for debugging
+        # Print files for debugging
         print(f"Files in upload folder: {os.listdir(app.config['UPLOAD_FOLDER'])}")
+        print(f"Checking if file exists: {upload_file_path}")
         
-        # Check each possible path
-        upload_file_path = None
-        for path in possible_paths:
-            print(f"Checking if file exists: {path}")
-            if os.path.exists(path):
-                upload_file_path = path
-                print(f"Found file at: {path}")
-                break
-        
-        # If we found the file, extract its text
-        if upload_file_path:
-            # Extract text from the document
-            extracted_text = tts_service.extract_text_from_pdf(upload_file_path)
+        if os.path.exists(upload_file_path):
+            print(f"Found file at: {upload_file_path}")
             
-            # Get the most recent audio file generated for this document
+            # Use the new text_processing module
+            extracted_text = text_processing.extract_text(upload_file_path)
+            
+            # Validate extracted text
+            if not extracted_text or len(extracted_text.strip()) < 50:
+                print(f"Warning: Low text extraction yield ({len(extracted_text)} chars)")
+                
+            # Get audio files
             audio_files = [f for f in os.listdir(app.config['AUDIO_OUTPUTS_DIR']) 
-                          if f.startswith(file_id.replace('.', '_'))]
-            
-            # Sort by creation time (most recent first)
+                          if f.startswith(os.path.splitext(file_id)[0])]
             audio_files.sort(key=lambda x: os.path.getctime(
                 os.path.join(app.config['AUDIO_OUTPUTS_DIR'], x)), reverse=True)
             
-            audio_path = None
-            if audio_files:
-                # Change this line to use absolute URL
-                audio_path = f"http://127.0.0.1:5000/api/audio/{audio_files[0]}"
+            audio_path = f"http://127.0.0.1:5000/api/audio/{audio_files[0]}" if audio_files else None
             
             return jsonify({
                 "success": True,
                 "filename": file_id,
                 "text_content": extracted_text,
                 "audioPath": audio_path,
-                "audioAvailable": audio_path is not None,
+                "audioAvailable": bool(audio_path),
                 "summaries": {
                     "tldr": "Brief summary not available.",
                     "standard": "Standard summary not available.",
                     "detailed": "Detailed summary not available."
-                }
+                },
+                "text_length": len(extracted_text)  # For debugging
             })
         else:
-            print(f"ERROR: File not found. Checked paths: {possible_paths}")
+            print(f"ERROR: File not found: {upload_file_path}")
             return jsonify({
                 "success": False,
                 "error": f"Document '{file_id}' not found"
@@ -470,17 +461,16 @@ def get_document(file_id):
 def get_document_text(file_id):
     """Get just the extracted text for a document"""
     try:
-        # Find the upload file path
         upload_file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_id)
         
-        # If the file exists, extract its text
         if os.path.exists(upload_file_path):
-            # Extract text from the document
-            extracted_text = tts_service.extract_text_from_pdf(upload_file_path)
+            # Use the new text_processing module
+            extracted_text = text_processing.extract_text(upload_file_path)
             
             return jsonify({
                 "success": True,
-                "text_content": extracted_text
+                "text_content": extracted_text,
+                "text_length": len(extracted_text)  # For debugging
             })
         else:
             return jsonify({
@@ -494,9 +484,7 @@ def get_document_text(file_id):
             "success": False,
             "error": str(e)
         }), 500
-
-# Add this new endpoint
-
+    
 @app.route('/api/documents/<file_id>/status', methods=['GET'])
 def get_document_status(file_id):
     """Check the processing status of a document"""
@@ -615,5 +603,90 @@ def cleanup_audio():
         print(f"Error in cleanup_audio: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True)
+@app.route('/api/check-file', methods=['POST'])
+def check_file_exists():
+    data = request.json
+    file_id = data.get('fileId')
+    
+    if not file_id:
+        return jsonify({"exists": False})
+    
+    print(f"Checking file existence for: {file_id}")
+    
+    # Try exact match first
+    file_path = os.path.join(UPLOAD_FOLDER, file_id)
+    exists = os.path.exists(file_path)
+    
+    # If not found, try with various extensions
+    if not exists:
+        # Remove any existing extension to avoid double extensions
+        base_file_id = file_id
+        if '.' in file_id:
+            base_file_id = file_id.rsplit('.', 1)[0]
+        
+        for ext in ['.pdf', '.docx', '.txt', '.png', '.jpg', '.jpeg']:
+            potential_path = os.path.join(UPLOAD_FOLDER, f"{base_file_id}{ext}")
+            print(f"Trying path: {potential_path}")
+            if os.path.exists(potential_path):
+                exists = True
+                file_path = potential_path
+                break
+    
+    print(f"Checking file existence: {file_id} - {'Found' if exists else 'Not found'}")
+    if exists:
+        print(f"Found at: {file_path}")
+    
+    return jsonify({"exists": exists, "filePath": file_path if exists else None})
+
+@app.route('/api/generate-summary', methods=['POST'])
+def generate_summary():
+    try:
+        data = request.get_json()
+        file_id = data.get('fileId')
+        summary_type = data.get('summaryType', 'brief')  # default to brief
+        
+        print(f"Generating summary for: {file_id}, type: {summary_type}")
+
+        # Check if file exists - exact match first
+        file_path = os.path.join(UPLOAD_FOLDER, file_id)
+        
+        if not os.path.exists(file_path):
+            # If not found with exact match, try with various extensions
+            base_file_id = file_id
+            if '.' in file_id:
+                base_file_id = file_id.rsplit('.', 1)[0]
+            
+            for ext in ['.pdf', '.docx', '.txt', '.png', '.jpg', '.jpeg']:
+                potential_path = os.path.join(UPLOAD_FOLDER, f"{base_file_id}{ext}")
+                print(f"Trying path: {potential_path}")
+                if os.path.exists(potential_path):
+                    file_path = potential_path
+                    break
+        
+        if not os.path.exists(file_path):
+            print(f"File not found: {file_id}")
+            return jsonify({"success": False, "error": "File not found"})
+            
+        print(f"Found file at: {file_path}")
+            
+        # Extract text from the document
+        from services.text_processing import extract_text
+        document_text = extract_text(file_path)
+        
+        if not document_text:
+            return jsonify({"success": False, "error": "Could not extract text from document"})
+            
+        # Generate summary based on type
+        from services.summary_service import generate_summary_by_type
+        summary = generate_summary_by_type(document_text, summary_type)
+        
+        return jsonify({"success": True, "summary": summary})
+            
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)})
+    
+if __name__ == "__main__":
+    print("Starting Flask server...")
+    app.run(debug=True, host='0.0.0.0', port=5000)

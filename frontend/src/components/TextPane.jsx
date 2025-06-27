@@ -24,6 +24,8 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
   const [currentLineIndex, setCurrentLineIndex] = useState(null)
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 25 })
   const [totalLines, setTotalLines] = useState(0)
+  const [linesPerPage, setLinesPerPage] = useState(25); // <-- New state variable
+  const [useDyslexicFont, setUseDyslexicFont] = useState(true); // <-- Dyslexic font state
 
   // Process text content into structured format with better error handling
   useEffect(() => {
@@ -307,17 +309,32 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
   // Add navigation controls for the 25-line view
   const handlePrevPage = () => {
     setVisibleRange(prev => ({
-      start: Math.max(0, prev.start - 25),
-      end: Math.max(25, prev.end - 25)
+      start: Math.max(0, prev.start - linesPerPage),
+      end: Math.max(linesPerPage, prev.end - linesPerPage)
     }))
   }
 
   const handleNextPage = () => {
     setVisibleRange(prev => ({
-      start: Math.min(totalLines - 1, prev.start + 25),
-      end: Math.min(totalLines, prev.end + 25)
+      start: Math.min(totalLines - 1, prev.start + linesPerPage),
+      end: Math.min(totalLines, prev.end + linesPerPage)
     }))
   }
+
+  // Add this function near your other control functions
+  const changeLinesPerPage = (delta) => {
+    setLinesPerPage(prev => Math.min(100, Math.max(10, prev + delta)));
+    // Update the visible range when changing lines per page
+    setVisibleRange(prev => ({
+      start: prev.start,
+      end: prev.start + Math.min(100, Math.max(10, linesPerPage + delta))
+    }));
+  };
+
+  // Add this function to toggle font
+  const toggleFont = () => {
+    setUseDyslexicFont(prev => !prev);
+  };
 
   if (!content) {
     return (
@@ -405,6 +422,47 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
               </svg>
             </button>
           </div>
+
+          {/* Lines per page controls */}
+          <div className="flex shadow-sm rounded-lg overflow-hidden">
+            <button 
+              onClick={() => changeLinesPerPage(-5)} 
+              className="bg-blue-100 hover:bg-blue-200 text-blue-800 px-2 py-1"
+              title="Fewer lines per page"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div className="bg-white px-2 py-1 text-xs">{linesPerPage} lines</div>
+            <button 
+              onClick={() => changeLinesPerPage(5)} 
+              className="bg-blue-100 hover:bg-blue-200 text-blue-800 px-2 py-1"
+              title="More lines per page"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Font toggle button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={toggleFont}
+            className={`text-white transition-colors px-3 py-1 rounded text-sm shadow-md flex items-center gap-1.5 ${
+              useDyslexicFont 
+                ? 'bg-green-600 hover:bg-green-700' 
+                : 'bg-gray-600 hover:bg-gray-700'
+            }`}
+            title={useDyslexicFont ? "Switch to standard font" : "Switch to dyslexic font"}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+            {useDyslexicFont ? "Standard Font" : "Dyslexic Font"}
+          </motion.button>
 
           {/* Text to speech button with improved feedback */}
           <motion.button
@@ -548,7 +606,7 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
       </AnimatePresence>
 
       {/* Add pagination controls */}
-      {totalLines > 25 && (
+      {totalLines > linesPerPage && (
         <div className="mb-3 flex justify-between items-center bg-indigo-50 p-2 rounded-lg">
           <button 
             onClick={handlePrevPage}
@@ -586,11 +644,11 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
           ref={contentRef}
           className="accessible-content h-full overflow-y-auto p-6 rounded-lg relative"
           style={{ 
-            fontFamily: 'OpenDyslexic, sans-serif',
+            fontFamily: useDyslexicFont ? 'OpenDyslexic, sans-serif' : 'Inter, sans-serif',
             whiteSpace: 'normal',
-            letterSpacing: '0.5px',
+            letterSpacing: useDyslexicFont ? '0.5px' : 'normal',
             lineHeight: lineSpacing,
-            wordSpacing: '0.25em',
+            wordSpacing: useDyslexicFont ? '0.25em' : 'normal',
             overflowY: 'auto',
             scrollBehavior: 'smooth',
             background: 'linear-gradient(to right, rgba(255, 250, 240, 0.9), rgba(255, 247, 237, 0.9))',
