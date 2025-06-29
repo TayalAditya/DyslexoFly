@@ -7,7 +7,8 @@ from services import text_processing
 import threading
 from datetime import datetime, timedelta
 from pathlib import Path
-
+from services.summary_service import generate_summary_by_type
+from flask import g
 
 app = Flask(__name__)
 CORS(app)
@@ -37,6 +38,7 @@ file_tracking = {}
 CLEANUP_INTERVAL = 3600  # 1 hour in seconds
 MAX_FILE_AGE = 24  # Maximum age in hours before deletion
 
+recent_check_requests = {}
 # Periodic cleanup function
 def cleanup_old_files():
     while True:
@@ -605,11 +607,23 @@ def cleanup_audio():
 
 @app.route('/api/check-file', methods=['POST'])
 def check_file_exists():
+
+    global recent_check_requests
     data = request.json
     file_id = data.get('fileId')
     
     if not file_id:
         return jsonify({"exists": False})
+    
+    # Deduplication check - if same request was made within last 2 seconds
+    request_key = f"{file_id}_{request.remote_addr}"
+    current_time = time.time()
+    
+    if request_key in recent_check_requests:
+        last_request = recent_check_requests[request_key]
+        if current_time - last_request['timestamp'] < 2:  # Within 2 seconds
+            print(f"DEDUPLICATED REQUEST: {file_id} - Using cached result")
+            return last_request['response']
     
     print(f"Checking file existence for: {file_id}")
     
@@ -636,16 +650,24 @@ def check_file_exists():
     if exists:
         print(f"Found at: {file_path}")
     
-    return jsonify({"exists": exists, "filePath": file_path if exists else None})
+    # Store the response for future duplicate requests
+    result = {"exists": exists, "filePath": file_path if exists else None}
+    response = jsonify(result)
+    recent_check_requests[request_key] = {
+        'timestamp': current_time,
+        'response': response
+    }
+    
+    return response
 
 @app.route('/api/generate-summary', methods=['POST'])
 def generate_summary():
     try:
         data = request.get_json()
         file_id = data.get('fileId')
-        summary_type = data.get('summaryType', 'brief')  # default to brief
+        summaryType = data.get('summaryType', 'brief')  # default to brief
         
-        print(f"Generating summary for: {file_id}, type: {summary_type}")
+        print(f"SUMMARY GENERATION REQUEST: file_id={file_id}, summary_type={summaryType}")
 
         # Check if file exists - exact match first
         file_path = os.path.join(UPLOAD_FOLDER, file_id)
@@ -676,9 +698,7 @@ def generate_summary():
         if not document_text:
             return jsonify({"success": False, "error": "Could not extract text from document"})
             
-        # Generate summary based on type
-        from services.summary_service import generate_summary_by_type
-        summary = generate_summary_by_type(document_text, summary_type)
+        summary = generate_summary_by_type(document_text, summaryType)
         
         return jsonify({"success": True, "summary": summary})
             
@@ -686,6 +706,23 @@ def generate_summary():
         import traceback
         traceback.print_exc()
         return jsonify({"success": False, "error": str(e)})
+    
+@app.route('/api/debug-summary', methods=['POST'])
+def debug_summary():
+    """Debug endpoint to test summary generation with minimal requirements"""
+    data = request.get_json()
+    file_id = data.get('fileId')
+    summary_type = data.get('summaryType', 'brief')
+    
+    print(f"DEBUG SUMMARY REQUEST: file_id={file_id}, summary_type={summary_type}")
+    print(f"Request JSON: {data}")
+    
+    # Send back a simple response for debugging
+    return jsonify({
+        "success": True,
+        "summary": f"Debug summary for {file_id} with type {summary_type}. Generated at {datetime.now()}",
+        "request_received": True
+    })
     
 if __name__ == "__main__":
     print("Starting Flask server...")

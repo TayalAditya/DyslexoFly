@@ -1,1 +1,9 @@
 backend/.env
+.cache/
+*.bin
+*.pt
+
+__pycache__/
+*.pyc
+*.safetensors
+venv/

@@ -7,6 +7,7 @@ import { useAccessibility } from '@/components/AccessibilityProvider'
 import TextPane from '@/components/TextPane'
 import SummaryPane from '@/components/SummaryPane'
 import AudioPane from '@/components/AudioPane'
+import SummarySection from '@/components/SummaryPane';
 
 // Demo documents with different summary levels
 const demoDocumentsData = {
@@ -419,75 +420,11 @@ export default function Results() {
               
               {activeTab === 'summary' && (
                 <div className="w-full">
-                  <div className="mb-6 flex items-center justify-center space-x-2">
-                    <button 
-                      onClick={() => setSummaryLevel('tldr')}
-                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                        summaryLevel === 'tldr' 
-                          ? 'bg-indigo-600 text-white' 
-                          : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
-                      }`}
-                    >
-                      TL;DR
-                    </button>
-                    <button 
-                      onClick={() => setSummaryLevel('standard')}
-                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                        summaryLevel === 'standard' 
-                          ? 'bg-indigo-600 text-white' 
-                          : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
-                      }`}
-                    >
-                      Standard
-                    </button>
-                    <button 
-                      onClick={() => setSummaryLevel('detailed')}
-                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                        summaryLevel === 'detailed' 
-                          ? 'bg-indigo-600 text-white' 
-                          : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
-                      }`}
-                    >
-                      Detailed
-                    </button>
-                  </div>
-                  
-                  <div className="mb-8">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-indigo-600">Summary Length</span>
-                      <span className="text-sm font-medium text-indigo-900">{summaryLevel === 'tldr' ? 'Brief' : summaryLevel === 'standard' ? 'Standard' : 'Detailed'}</span>
-                    </div>
-                    <div className="relative">
-                      <input 
-                        type="range" 
-                        min="0" 
-                        max="2" 
-                        value={summaryLevel === 'tldr' ? 0 : summaryLevel === 'standard' ? 1 : 2}
-                        onChange={(e) => {
-                          const val = parseInt(e.target.value);
-                          if (val === 0) setSummaryLevel('tldr');
-                          else if (val === 1) setSummaryLevel('standard');
-                          else setSummaryLevel('detailed');
-                        }}
-                        className="w-full h-2 bg-indigo-100 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                      />
-                      <div className="flex justify-between text-xs text-indigo-500 mt-1">
-                        <span>Brief</span>
-                        <span>Standard</span>
-                        <span>Detailed</span>
-                      </div>
-                    </div>
-                  </div>
-                  
                   <div className="bg-blue-50 p-6 rounded-lg border border-blue-100">
-                    <h2 className="text-xl font-semibold text-indigo-900 mb-3">
-                      {summaryLevel === 'tldr' ? 'Quick Overview' : 
-                       summaryLevel === 'standard' ? 'Standard Summary' : 'Detailed Summary'}
-                    </h2>
                     <div className="prose prose-indigo max-w-none">
                       <SummaryPane 
-                        fileId={fileId}  // Pass the file ID
-                        initialSummary={result.summaries[summaryLevel]}  // Pass any initial summary you may have
+                        fileId={fileId} 
+                        initialSummary={result?.summaries} 
                       />
                     </div>
                   </div>
@@ -555,4 +492,14 @@ export default function Results() {
       </div>
     </div>
   )
+}
+
+export function ResultsPage({ fileId }) {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center py-8 px-2">
+      <div className="w-full max-w-3xl">
+        <SummarySection fileId={fileId} />
+      </div>
+    </div>
+  );
 }
