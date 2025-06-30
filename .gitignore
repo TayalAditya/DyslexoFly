@@ -7,3 +7,4 @@ __pycache__/
 *.pyc
 *.safetensors
 venv/node_modules/
+node_modules/

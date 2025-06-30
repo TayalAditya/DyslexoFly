@@ -55,12 +55,13 @@ DyslexoFly/
 │   ├── img4.png   
 ├── .gitignore
 ├── audio_outputs/            # Stores TTS-generated audio files
-│   └── audio.mp3  # Example audio file
+│   └── audio.mp3  # Example 21 audio files
 ├── backend/
 │   ├── app.py                # Main Flask application
 │   ├── requirements.txt      # Python dependencies
 │   ├── services/
 │   │   ├── __init__.py       # Init file for service package
+│   │   ├── summary_service.py # Summary Generation & display logic
 │   │   ├── text_processing.py # Text extraction & preprocessing logic
 │   │   ├── tts_service.py    # Text-to-speech conversion logic
 │   │   └── __pycache__/      # Python cache files
