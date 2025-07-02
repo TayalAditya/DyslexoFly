@@ -4,7 +4,7 @@
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue)](https://python.org/)
 [![Flask](https://img.shields.io/badge/Flask-2.3.3-lightgrey)](https://flask.palletsprojects.com/)
-[![Hackathon](https://img.shields.io/badge/Hackathon-Code%20for%20Bharat%20S2-orange)](https://www.codeofduty.in/)
+[![Hackathon](https://img.shields.io/badge/Hackathon-Code%20for%20Bharat%20S2-orange)](https://www.codeforbharat.xyz/)
 
 > **Transforming educational content for 70M+ dyslexic learners in India**
 
