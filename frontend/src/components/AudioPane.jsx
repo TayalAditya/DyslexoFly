@@ -134,15 +134,7 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
     
     const detectedLang = detectLanguage(textContent);
     setDetectedContentLanguage(detectedLang);
-    
-    // Auto-select English (US) Female instead of showing popup
-    if (!hasSelectedLanguage) {
-      setHasSelectedLanguage(true);
-      setSelectedVoice({ language: 'en-us', gender: 'female' });
-      globalAudioState.hasSelectedLanguage = true;
-      globalAudioState.userPreferredLanguage = 'en-us';
-    }
-  }, [textContent, selectedVoice]);
+  }, [textContent]);
   
   // Update the voiceOptions array to include the child voice
   const voiceOptions = [
@@ -222,16 +214,7 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
         detectedGender = 'female';
       }
       
-      // Set the voice with a small delay to ensure React has processed previous state updates
-      // Only auto-select if user hasn't manually selected a voice for this file
-      setTimeout(() => {
-        if (!globalAudioState.selectedVoices[fileId]) {
-          setSelectedVoice({ language: detectedLanguage, gender: detectedGender });
-          console.log(`Auto-detected voice set to: ${detectedLanguage}-${detectedGender}`);
-        } else {
-          console.log(`Using user-selected voice for ${fileId}`);
-        }
-      }, 50);
+      // Do not automatically update the selected voice – wait for explicit user choice.
     }
   }, [processedAudioUrl]);
   
@@ -1312,6 +1295,14 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
         .font-dyslexic p {
           line-height: 1.6;
           letter-spacing: 0.01em;
+        }
+
+        /* Hide extra decorative background / particle animations so that only the voice-change processing
+           overlay remains animated. */
+        .particles-container,
+        .animate-ping-slow {
+          display: none !important;
+          animation: none !important;
         }
       `}</style>
       </div>
