@@ -376,7 +376,7 @@ const handleDemoClick = async (demoId) => {
               Making Education Accessible
             </h2>
             <p className="mt-4 max-w-2xl mx-auto text-xl text-purple-100">
-              Built by The Kamand Crew for the global dyslexic learning community.
+              Built by The Kamand Krew for the global dyslexic learning community.
             </p>
           </div>
 
