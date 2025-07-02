@@ -13,7 +13,6 @@ import AdvancedDownloadPackage from '@/components/AdvancedDownloadPackage';
 import EnhancedImpactDashboard from '@/components/EnhancedImpactDashboard';
 import EnhancedPerformanceAnalytics from '@/components/EnhancedPerformanceAnalytics';
 import EnhancedCollaborationHub from '@/components/EnhancedCollaborationHub';
-import CompetitionBanner from '@/components/CompetitionBanner';
 
 // Demo documents with different summary levels
 const demoDocumentsData = {
@@ -373,10 +372,7 @@ function ResultsContent() {
   
   return (
     <div className="min-h-screen pattern-bg py-12" style={rootStyle}>
-      {/* Competition Banner */}
-      <CompetitionBanner />
-      
-      {/* Enhanced Floating Action Buttons */}
+      {/* Main 3 Floating Action Buttons Only */}
       <div className="fixed bottom-6 right-6 z-40 flex flex-col space-y-3">
         <motion.button
           whileHover={{ scale: 1.1 }}
@@ -424,7 +420,7 @@ function ResultsContent() {
         </motion.button>
       </div>
 
-      {/* Enhanced Modal Components */}
+      {/* Only 3 Main Modal Components as requested */}
       <EnhancedImpactDashboard 
         isVisible={showImpactDashboard} 
         onClose={() => setShowImpactDashboard(false)} 

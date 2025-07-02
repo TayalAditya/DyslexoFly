@@ -417,18 +417,30 @@ export default function SummarySection({ fileId, initialSummaries }) {
       }, delay);
     });
 
-    // Make API call
+    // Make API call with enhanced error handling
     fetch('http://127.0.0.1:5000/api/generate-summary', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
+      },
       body: JSON.stringify({
         fileId: fileId,
         summaryType: apiType
       })
     })
-    .then(res => res.json())
+    .then(async res => {
+      console.log(`Summary API response status: ${res.status} for ${fileId}-${apiType}`);
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Summary API error response:', errorText);
+        throw new Error(`Server error ${res.status}: ${errorText}`);
+      }
+      return res.json();
+    })
     .then(data => {
-      if (data.success) {
+      console.log(`Summary generation success for ${fileId}-${apiType}:`, data);
+      if (data.success && data.summary) {
         const summary = data.summary;
           // Set summary and calculate stats
         setSummaries(prev => {
@@ -455,13 +467,15 @@ export default function SummarySection({ fileId, initialSummaries }) {
           [type]: { loading: false, progress: 100, error: null, startTime: null }
         }));
       } else {
-        throw new Error(data.error || "Failed to generate summary");
+        console.error('Invalid API response:', data);
+        throw new Error(data.error || data.message || "API returned invalid response");
       }
     })
     .catch(err => {
+      console.error(`Summary generation failed for ${fileId}-${apiType}:`, err);
       setGenerationStatus(prev => ({
         ...prev,
-        [type]: { loading: false, progress: 0, error: err.message, startTime: null }
+        [type]: { loading: false, progress: 0, error: `Generation failed: ${err.message}`, startTime: null }
       }));
     });
   };

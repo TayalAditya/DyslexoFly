@@ -135,12 +135,10 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
     const detectedLang = detectLanguage(textContent);
     setDetectedContentLanguage(detectedLang);
     
-    // Auto-select English (US) Female instead of showing popup
+    // Show language selector on first visit instead of auto-selecting
     if (!hasSelectedLanguage) {
-      setHasSelectedLanguage(true);
-      setSelectedVoice({ language: 'en-us', gender: 'female' });
-      globalAudioState.hasSelectedLanguage = true;
-      globalAudioState.userPreferredLanguage = 'en-us';
+      setShowLanguageSelector(true);
+      // Don't auto-select - let user choose
     }
   }, [textContent, selectedVoice]);
   
@@ -235,99 +233,11 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
     }
   }, [processedAudioUrl]);
   
-  // Generate matrix animation characters
-  useEffect(() => {
-    if (isProcessing) {
-      const chars = Array(180).fill().map(() => ({
-        char: String.fromCharCode(33 + Math.floor(Math.random() * 94)),
-        x: Math.floor(Math.random() * 100),
-        y: Math.floor(Math.random() * 100),
-        opacity: Math.random() * 0.7 + 0.3,
-        size: Math.floor(Math.random() * 16) + 10,
-      }));
-      setMatrixChars(chars);
-      
-      matrixInterval.current = setInterval(() => {
-        setMatrixChars(prev => prev.map(c => ({
-          ...c,
-          char: Math.random() > 0.7 ? String.fromCharCode(33 + Math.floor(Math.random() * 94)) : c.char,
-          opacity: Math.random() * 0.7 + 0.3,
-          y: (c.y + 1) % 110
-        })));
-      }, 120);
-      
-      return () => {
-        if (matrixInterval.current) {
-          clearInterval(matrixInterval.current);
-        }
-      };
-    }
-  }, [isProcessing]);
+  // Simplified processing indicator - removed matrix animation for performance
+  // Matrix animation removed to reduce complexity and improve performance
   
-  // Updated animation effect for randomly positioned waves
-  useEffect(() => {
-    let animationFrameId = null;
-    
-    if (isPlaying) {
-      // Generate initial wave data with better amplitude range
-      if (wavesRef.current.length === 0) {
-        wavesRef.current = Array(24).fill().map(() => ({
-          baseAmplitude: Math.random() * 0.5 + 0.5,
-          speedMultiplier: Math.random() * 0.5 + 0.5,
-          phase: Math.random() * Math.PI * 2
-        }));
-      }
-
-      const animateWaves = () => {
-        const waves = document.querySelectorAll('.audio-wave');
-        
-        if (waves.length > 0) {
-          const now = Date.now() / 1000;
-          
-          waves.forEach((wave, i) => {
-            if (wavesRef.current[i]) {
-              const { baseAmplitude, speedMultiplier, phase } = wavesRef.current[i];
-              
-              // Multiple sine waves for more organic movement
-              const primaryWave = Math.sin(now * speedMultiplier * 2 + phase);
-              const secondaryWave = Math.sin(now * speedMultiplier * 0.7 + phase * 1.3);
-              const combinedValue = primaryWave * 0.7 + secondaryWave * 0.3;
-              
-              // Dynamic height for the wave
-              const height = 5 + baseAmplitude * 35 * Math.abs(combinedValue);
-              
-              // Get the wave's custom length
-              const length = wave.style.getPropertyValue('--wave-length') || '30px';
-              const lengthValue = parseFloat(length);
-              
-              // Apply height and transform to create extension effect
-              wave.style.height = `${height}px`;
-              wave.style.transformOrigin = 'center left';
-              
-              // Vary the width slightly based on the amplitude
-              wave.style.width = `${1.5 + baseAmplitude * 0.5}px`;
-              
-              // Add slight opacity variation
-              wave.style.opacity = 0.5 + baseAmplitude * 0.3 * Math.abs(combinedValue);
-            }
-          });
-        }
-        
-        if (isPlaying) {
-          animationFrameId = requestAnimationFrame(animateWaves);
-        }
-      };
-      
-      animateWaves();
-      
-      // Proper cleanup of animation frame
-      return () => {
-        if (animationFrameId) {
-          cancelAnimationFrame(animationFrameId);
-        }
-      };
-    }
-  }, [isPlaying]);
+  // Keep only essential audio wave visualization - simplified for performance
+  // Complex wave animations removed to focus on voice change functionality
   
   // Extract audio file info when URL changes
   useEffect(() => {
