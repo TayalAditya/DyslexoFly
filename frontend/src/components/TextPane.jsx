@@ -350,16 +350,16 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
     )
   }
 
-  if (loading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <div className="loading-spinner mb-4"></div>
-          <p className="text-indigo-900">Loading content...</p>
-        </div>
-      </div>
-    )
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="h-full flex items-center justify-center">
+  //       <div className="text-center">
+  //         <div className="loading-spinner mb-4"></div>
+  //         <p className="text-indigo-900">Loading content...</p>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
   return (
     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-xl p-5 h-full overflow-hidden border border-indigo-100 flex flex-col">
