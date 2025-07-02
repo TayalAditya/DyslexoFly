@@ -57,7 +57,7 @@ export default function LicenseModal({ isOpen, onClose }) {
                   <p><strong>Repository:</strong> https://github.com/TayalAditya/DyslexoFly</p>
                   <p><strong>License:</strong> MIT License</p>
                   <p><strong>Copyright:</strong> © 2025 Aditya Tayal</p>
-                  <p><strong>Team:</strong> The Kamand Crew</p>
+                  <p><strong>Team:</strong> The Kamand Krew</p>
                 </div>
               </div>
 

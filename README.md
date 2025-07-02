@@ -293,7 +293,7 @@ The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 ```
 
-## 👥 Team - The Kamand Crew
+## 👥 Team - The Kamand Krew
 
 ### **Aditya Tayal** - Lead Developer & AI Integration
 - 🎓 IIT Mandi, 3rd Year Computer Science & Engineering
@@ -348,7 +348,7 @@ copies or substantial portions of the Software.
 
 **🌟 Making education accessible for everyone 🌟**
 
-*Built with ❤️ by The Kamand Crew*
+*Built with ❤️ by The Kamand Krew*
 
 [⭐ Star this repo](https://github.com/TayalAditya/DyslexoFly) | [🐛 Report Bug](https://github.com/TayalAditya/DyslexoFly/issues) | [💡 Request Feature](https://github.com/TayalAditya/DyslexoFly/issues)
 
