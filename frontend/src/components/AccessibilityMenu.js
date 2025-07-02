@@ -76,6 +76,7 @@ export default function AccessibilityMenu() {
               <button
                 onClick={() => setTheme('light')}
                 className={`p-2 rounded ${theme === 'light' ? 'ring-2 ring-blue-500' : 'border border-gray-300'}`}
+                style={{ backgroundColor: '#ffffff' }}
               >
                 <div className="h-6 bg-white border border-gray-200"></div>
                 <span className="text-xs mt-1 block">Light</span>
@@ -83,6 +84,7 @@ export default function AccessibilityMenu() {
               <button
                 onClick={() => setTheme('cream')}
                 className={`p-2 rounded ${theme === 'cream' ? 'ring-2 ring-blue-500' : 'border border-gray-300'}`}
+                style={{ backgroundColor: '#fffbeb' }}
               >
                 <div className="h-6 bg-amber-50 border border-gray-200"></div>
                 <span className="text-xs mt-1 block">Cream</span>
@@ -90,12 +92,14 @@ export default function AccessibilityMenu() {
               <button
                 onClick={() => setTheme('dark')}
                 className={`p-2 rounded ${theme === 'dark' ? 'ring-2 ring-blue-500' : 'border border-gray-300'}`}
+                style={{ backgroundColor: '#111827' }}
               >
                 <div className="h-6 bg-gray-800 border border-gray-700"></div>
                 <span className="text-xs mt-1 block">Dark</span>
               </button>
             </div>
           </div>
+
           
           <button
             onClick={() => setIsOpen(false)}

@@ -3,21 +3,18 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link'
-import { motion } from 'framer-motion'; 
+import { motion } from 'framer-motion';
 import { useAccessibility } from '@/components/AccessibilityProvider'
 import TextPane from '@/components/TextPane'
 import SummaryPane from '@/components/SummaryPane'
 import AudioPane from '@/components/AudioPane'
 import DownloadPackage from '@/components/DownloadPackage';
 import AdvancedDownloadPackage from '@/components/AdvancedDownloadPackage';
-import EnhancedImpactDashboard from '@/components/EnhancedImpactDashboard';
-import EnhancedPerformanceAnalytics from '@/components/EnhancedPerformanceAnalytics';
-import EnhancedCollaborationHub from '@/components/EnhancedCollaborationHub';
-import CompetitionBanner from '@/components/CompetitionBanner';
+import ResultsFloatingButtons from '@/components/ResultsFloatingButtons';
 
-// Demo documents with different summary levels
+// Demo documents data remains the same as in the original code
 const demoDocumentsData = {
-  'science-textbook.pdf': { 
+  'science-textbook.pdf': {
     filename: 'Science Textbook Chapter.pdf',
     text_content: "The water cycle is the continuous movement of water within Earth and its atmosphere. Water moves from the Earth's surface to the atmosphere through evaporation and transpiration. It then returns to the surface as precipitation. This cycle includes: evaporation, condensation, precipitation, infiltration, runoff, and transpiration. The sun drives the entire water cycle and is responsible for its continuous movement. Water that falls on land collects in rivers, lakes, and underground sources. Plants absorb water through their roots and release it through their leaves.",
     summaries: {
@@ -25,7 +22,6 @@ const demoDocumentsData = {
       standard: "The water cycle describes how water moves through Earth's systems through processes of evaporation, condensation, precipitation, and collection. This cycle is essential for maintaining Earth's water balance.",
       detailed: "The water cycle is the continuous movement of water within Earth and its atmosphere. It includes six key processes: evaporation, condensation, precipitation, infiltration, runoff, and transpiration. The sun powers this cycle, causing water to evaporate from surface sources, condense as clouds, fall as precipitation, then collect in bodies of water or return to the atmosphere through plant transpiration. This perpetual cycle maintains Earth's water balance and supports all life forms."
     },
-    // Default audio path (US female voice)
     audioPath: "/api/audio/Science_Textbook_Chapter_pdf_en-us_female_1750982208.mp3",
     audio_available: true,
     voiceOptions: {
@@ -96,7 +92,7 @@ const demoDocumentsData = {
       }
     }
   }
-}
+};
 
 function ResultsContent() {
   const searchParams = useSearchParams();
@@ -104,76 +100,32 @@ function ResultsContent() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('text')
-  const [currentPlayingIndex, setCurrentPlayingIndex] = useState(null)
+  const [activeTab, setActiveTab] = useState('text');
+  const [currentPlayingIndex, setCurrentPlayingIndex] = useState(null);
   const [isTextLoading, setIsTextLoading] = useState(false);
-  const [showImpactDashboard, setShowImpactDashboard] = useState(false);
-  const [showPerformanceAnalytics, setShowPerformanceAnalytics] = useState(false);
-  const [showCollaborationHub, setShowCollaborationHub] = useState(false);
-    
-  // Get accessibility context - apply to root div
+  const [voiceOption, setVoiceOption] = useState({ language: 'en-us', gender: 'female' });
+
   const accessibilitySettings = useAccessibility();
 
-  // Cleanup function when leaving the page - ONLY on actual navigation away
+  // Document loading logic
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      // Only cleanup non-demo documents when actually leaving the site
-      if (fileId && !demoDocumentsData[fileId]) {
-        // Use navigator.sendBeacon for more reliable cleanup on page unload
-        const data = JSON.stringify({ fileId });
-        navigator.sendBeacon('http://127.0.0.1:5000/api/cleanup-document', data);
-      }
-    };
-
-    // Only add beforeunload listener, not on component unmount
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    
-    // Cleanup ONLY the event listener on unmount, not the files
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [fileId]);
-  
-  // Add this console log to debug
-  useEffect(() => {
-    if (result?.audioPath) {
-      console.log('Audio Path:', result.audioPath);
-    }
-  }, [result?.audioPath]);
-
-  useEffect(() => {
-    // Load document - NO AUDIO GENERATION
     const loadDocument = async () => {
       if (!fileId) return;
-      
+
       setLoading(true);
       setError(null);
-      
+
       try {
-        // First check for demo document from sessionStorage (from home page clicks)
-        const sessionDemoData = sessionStorage.getItem('demoDocument');
-        if (sessionDemoData) {
-          console.log("Loading demo document from session storage");
-          const demoData = JSON.parse(sessionDemoData);
-          setResult(demoData);
-          setLoading(false);
-          // Clear session storage after loading
-          sessionStorage.removeItem('demoDocument');
-          return;
-        }
-        
-        // Check if it's a predefined demo document
         if (demoDocumentsData[fileId]) {
-          console.log("Loading predefined demo document:", fileId);
+          console.log("Loading demo document:", fileId);
           setResult(demoDocumentsData[fileId]);
           setLoading(false);
           return;
         }
-        
-        // Regular document from backend
+
         console.log("Fetching document from backend:", fileId);
-        const response = await fetch(`http://127.0.0.1:5000/api/documents/${encodeURIComponent(fileId)}`);
-        
+        const response = await fetch(`http://127.0.0.1:5000/api/documents/${fileId}`);
+
         if (!response.ok) {
           if (response.status === 404) {
             throw new Error(`Document "${fileId}" not found. Please check if the file exists on the server.`);
@@ -181,38 +133,35 @@ function ResultsContent() {
             throw new Error(`Server error: ${response.status}. Please try again later.`);
           }
         }
-        
+
         const data = await response.json();
         console.log("Document loaded successfully");
-        
-        // Set result WITHOUT audio progress simulation
         setResult(data);
         setLoading(false);
-        
+
       } catch (err) {
         console.error("Error loading document:", err);
         setError(err.message);
         setLoading(false);
       }
     };
-    
-    loadDocument();
-  }, [fileId])
 
-  // Replace your second useEffect with this version
+    loadDocument();
+  }, [fileId]);
+
+  // Text content fetching logic
   useEffect(() => {
-    const shouldFetchText = 
-      fileId && 
-      !demoDocumentsData[fileId] && 
-      !isTextLoading && 
-      result && 
+    const shouldFetchText =
+      fileId &&
+      !demoDocumentsData[fileId] &&
+      !isTextLoading &&
+      result &&
       !result.text_content;
-      
+
     if (shouldFetchText) {
       console.log("Fetching extracted text for:", fileId);
       setIsTextLoading(true);
-      
-      // Add timeout to prevent infinite loading if server doesn't respond
+
       const fetchTimeout = setTimeout(() => {
         console.error("Fetch text timeout - server not responding");
         setIsTextLoading(false);
@@ -221,9 +170,9 @@ function ResultsContent() {
           text_content: "Failed to load text content: Server timeout",
           hasTriedTextFetch: true
         }));
-      }, 15000); // 15 second timeout
-      
-      fetch(`http://127.0.0.1:5000/api/documents/${fileId}/extracted-text`)
+      }, 15000);
+
+      fetch(`http://localhost:5000/api/documents/${fileId}/extracted-text`)
         .then(response => {
           clearTimeout(fetchTimeout);
           console.log("Text fetch response status:", response.status);
@@ -256,24 +205,18 @@ function ResultsContent() {
           setIsTextLoading(false);
         });
     }
-  }, [fileId, isTextLoading, result]); // Remove hasTriedTextFetch from dependencies
+  }, [fileId, isTextLoading, result]);
 
   const handleSelectText = (index) => {
-    setCurrentPlayingIndex(index)
-  }
+    setCurrentPlayingIndex(index);
+  };
 
-  // Update the handleVoiceChange function
   const handleVoiceChange = async (newVoice) => {
-    // For demo content, use the pre-recorded audio files
     if (demoDocumentsData[fileId]) {
       const voiceOptions = demoDocumentsData[fileId].voiceOptions;
-      
-      // Check if this voice option exists
-      if (voiceOptions && 
-          voiceOptions[newVoice.language] && 
+      if (voiceOptions &&
+          voiceOptions[newVoice.language] &&
           voiceOptions[newVoice.language][newVoice.gender]) {
-        
-        // Update the audioPath in the result state
         setResult(prev => ({
           ...prev,
           audioPath: voiceOptions[newVoice.language][newVoice.gender]
@@ -285,18 +228,14 @@ function ResultsContent() {
         return Promise.resolve();
       }
     }
-    
-    // For regular uploads, make the API call as before
+
     setLoading(true);
     try {
       console.log("Requesting audio regeneration with:", newVoice);
-      
-      // Make an API request to regenerate audio with new voice
-      const response = await fetch('http://127.0.0.1:5000/api/regenerate-audio', {
+      const response = await fetch('http://localhost:5000/api/regenerate-audio', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true',
         },
         body: JSON.stringify({
           fileId: fileId,
@@ -304,9 +243,8 @@ function ResultsContent() {
           gender: newVoice.gender
         }),
       });
-      
+
       const data = await response.json();
-      
       if (data.success) {
         setResult(prev => ({
           ...prev,
@@ -324,30 +262,7 @@ function ResultsContent() {
       setLoading(false);
     }
   };
-  
-  // Debugging useEffect
-  useEffect(() => {
-    if (result) {
-      console.log("Result State:", {
-        filename: result.filename,
-        hasTextContent: !!result.text_content,
-        audioPath: result.audioPath,
-        textLength: result.text_content ? result.text_content.length : 0
-      });
-    }
-  }, [result]);
-  
-  // if (loading) {
-  //   return (
-  //     <div className="min-h-screen pattern-bg flex items-center justify-center">
-  //       <div className="text-center bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg">
-  //         <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div>
-  //         <p className="mt-4 text-lg font-medium text-indigo-700">Processing your document...</p>
-  //       </div>
-  //     </div>
-  //   )
-  // }
-  
+
   if (error) {
     return (
       <div className="min-h-screen pattern-bg p-8">
@@ -361,156 +276,41 @@ function ResultsContent() {
           </div>
         </div>
       </div>
-    )
+    );
   }
-  
+
   if (!result) return null;
-  
-  // Apply accessibility settings to the root element
+
   const rootStyle = {
     fontFamily: accessibilitySettings.fontFamily || 'Inter var, sans-serif',
   };
-  
+
   return (
     <div className="min-h-screen pattern-bg py-12" style={rootStyle}>
-      {/* Competition Banner */}
-      <CompetitionBanner />
-      
-      {/* Enhanced Floating Action Buttons */}
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col space-y-3">
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setShowImpactDashboard(true)}
-          className="group bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300"
-          title="View Impact Dashboard"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
-            🏆
-          </span>
-        </motion.button>
-
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setShowPerformanceAnalytics(true)}
-          className="group bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300"
-          title="View Performance Analytics"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-          </svg>
-          <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
-            ⚡
-          </span>
-        </motion.button>
-
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setShowCollaborationHub(true)}
-          className="group bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300"
-          title="View Team Collaboration"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          <span className="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
-            👥
-          </span>
-        </motion.button>
+      <div className="fixed bottom-6 right-6 z-40">
+        <ResultsFloatingButtons
+          fileId={fileId}
+          textStats={{ words: result?.text_content?.split(' ').length || 500 }}
+        />
       </div>
 
-      {/* Enhanced Modal Components */}
-      <EnhancedImpactDashboard 
-        isVisible={showImpactDashboard} 
-        onClose={() => setShowImpactDashboard(false)} 
-      />
-
-      <EnhancedPerformanceAnalytics 
-        isVisible={showPerformanceAnalytics}
-        onClose={() => setShowPerformanceAnalytics(false)}
-        fileId={fileId}
-        processingData={{
-          startTime: Date.now() - 15000,
-          endTime: Date.now(),
-          textContent: result?.text_content,
-          audioTime: 3.2,
-          summaryTime: 1.8,
-          compressionRatio: 0.15
-        }}
-      />
-
-      <EnhancedCollaborationHub 
-        isVisible={showCollaborationHub}
-        onClose={() => setShowCollaborationHub(false)}
-      />
-      
-      {/* Results Floating Buttons - REMOVED TO PREVENT OVERLAP */}
-      {/* <ResultsFloatingButtons 
-        fileId={fileId} 
-        textStats={{ words: result?.text_content?.split(' ').length || 500 }}
-        onShowImpact={(data) => {
-          setImpactData(data);
-          setShowImpactDashboard(true);
-        }}
-        onShowPerformance={(data) => {
-          setPerformanceData(data);
-          setShowPerformanceAnalytics(true);
-        }}
-        onShowCollaboration={(data) => {
-          setCollaborationData(data);
-          setShowCollaborationHub(true);
-        }}
-      /> */}
-
-      {/* Loading State */}
-      {loading && (
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-indigo-100 p-8 text-center">
-            <div className="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-indigo-600 rounded-full mb-4"></div>
-            <p className="text-gray-600">Loading document...</p>
-          </div>
-        </div>
-      )}
-
-      {/* Error State */}
-      {error && !loading && (
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
-            <p className="text-red-800 font-medium">Error: {error}</p>
-            <button 
-              onClick={() => window.location.reload()} 
-              className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-            >
-              Try Again
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Main Content */}
-      {!loading && !error && result && (
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-indigo-100">
           <div className="px-6 py-4 border-b border-indigo-100 flex justify-between items-center bg-gradient-to-r from-indigo-50 to-purple-50">
-            <h1 className="text-2xl font-bold text-indigo-900 truncate" style={{ fontFamily: 'Arial, sans-serif, "Noto Sans Devanagari"' }}>
+            <h1 className="text-2xl font-bold text-indigo-900 truncate">
               {decodeURIComponent(result.filename)}
             </h1>
             <Link href="/upload" className="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
               Process another file
             </Link>
           </div>
-          
+
           <div className="border-b border-indigo-100">
             <nav className="flex bg-white">
               <button
                 className={`px-6 py-4 font-medium text-sm transition-colors duration-200 ${
-                  activeTab === 'text' 
-                    ? 'border-b-2 border-indigo-500 text-indigo-700 bg-indigo-50' 
+                  activeTab === 'text'
+                    ? 'border-b-2 border-indigo-500 text-indigo-700 bg-indigo-50'
                     : 'border-transparent text-gray-600 hover:text-indigo-600 hover:bg-indigo-50/50'
                 }`}
                 onClick={() => setActiveTab('text')}
@@ -524,8 +324,8 @@ function ResultsContent() {
               </button>
               <button
                 className={`px-6 py-4 font-medium text-sm transition-colors duration-200 ${
-                  activeTab === 'summary' 
-                    ? 'border-b-2 border-indigo-500 text-indigo-700 bg-indigo-50' 
+                  activeTab === 'summary'
+                    ? 'border-b-2 border-indigo-500 text-indigo-700 bg-indigo-50'
                     : 'border-transparent text-gray-600 hover:text-indigo-600 hover:bg-indigo-50/50'
                 }`}
                 onClick={() => setActiveTab('summary')}
@@ -539,8 +339,8 @@ function ResultsContent() {
               </button>
               <button
                 className={`px-6 py-4 font-medium text-sm transition-colors duration-200 ${
-                  activeTab === 'audio' 
-                    ? 'border-b-2 border-indigo-500 text-indigo-700 bg-indigo-50' 
+                  activeTab === 'audio'
+                    ? 'border-b-2 border-indigo-500 text-indigo-700 bg-indigo-50'
                     : 'border-transparent text-gray-600 hover:text-indigo-600 hover:bg-indigo-50/50'
                 }`}
                 onClick={() => setActiveTab('audio')}
@@ -554,9 +354,8 @@ function ResultsContent() {
               </button>
             </nav>
           </div>
-          
+
           <div className="p-6 bg-gradient-to-b from-white to-indigo-50/30 min-h-[400px]">
-            {/* Content based on active tab */}
             <div className="w-full">
               {activeTab === 'text' && (
                 <div className="p-6 bg-white rounded-lg shadow">
@@ -569,7 +368,7 @@ function ResultsContent() {
                       <p className="mb-4 text-sm text-gray-500">
                         Text content length: {result.text_content?.length || 0} characters
                       </p>
-                      <TextPane 
+                      <TextPane
                         content={result.text_content || "Text was successfully extracted for audio processing."}
                         currentPlayingIndex={currentPlayingIndex}
                         onSelectText={handleSelectText}
@@ -578,21 +377,23 @@ function ResultsContent() {
                   )}
                 </div>
               )}
-              
               {activeTab === 'summary' && (
                 <div className="w-full">
-                  <SummaryPane 
-                    fileId={fileId} 
-                    initialSummaries={result?.summaries} 
-                  />
+                  <div className="bg-blue-50 p-6 rounded-lg border border-blue-100">
+                    <div className="prose prose-indigo max-w-none">
+                      <SummaryPane
+                        fileId={fileId}
+                        initialSummary={result?.summaries}
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
-              
               {activeTab === 'audio' && (
                 <div className="w-full">
-                  <AudioPane 
-                    audioUrl={result?.audioPath} 
-                    textContent={result?.text_content} 
+                  <AudioPane
+                    audioUrl={result?.audioPath}
+                    textContent={result?.text_content}
                     onPlayingIndexChange={handleSelectText}
                     onVoiceChange={handleVoiceChange}
                   />
@@ -600,7 +401,7 @@ function ResultsContent() {
               )}
             </div>
           </div>
-          
+
           <div className="px-6 py-4 bg-gradient-to-r from-indigo-50 to-purple-50 border-t border-indigo-100">
             <div className="flex justify-between items-center mb-4">
               <div>
@@ -613,16 +414,16 @@ function ResultsContent() {
                   </span>
                 </p>
               </div>
-              
+
               <div className="flex space-x-2">
-                <DownloadPackage 
+                <DownloadPackage
                   fileId={fileId}
                   textContent={result?.text_content}
                   summaries={result?.summaries}
                   audioUrl={result?.audioPath}
                   allAudioUrls={result?.voiceOptions ? Object.values(result.voiceOptions).flatMap(lang => Object.values(lang)) : []}
                 />
-                <button 
+                <button
                   className="px-4 py-2 bg-white border border-indigo-200 rounded-md text-sm font-medium text-indigo-400 cursor-not-allowed opacity-70"
                   disabled
                   title="Coming soon"
@@ -631,8 +432,7 @@ function ResultsContent() {
                 </button>
               </div>
             </div>
-            
-            {/* Advanced Download Package */}
+
             <AdvancedDownloadPackage
               fileId={fileId}
               textContent={result?.text_content}
@@ -640,11 +440,10 @@ function ResultsContent() {
               audioUrls={result?.voiceOptions}
               className="mt-6"
             />
-            
-            {/* Back to Home Button */}
+
             <div className="flex justify-center mt-4">
-              <Link 
-                href="/" 
+              <Link
+                href="/"
                 className="inline-flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors shadow-md"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -656,9 +455,8 @@ function ResultsContent() {
           </div>
         </div>
       </div>
-      )}
     </div>
-  )
+  );
 }
 
 export default function Results() {

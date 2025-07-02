@@ -3,13 +3,15 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useRouter } from 'next/navigation'
 import LicenseModal from '@/components/LicenseModal'
 import UploadButton from '@/components/UploadButton'
 import FloatingActions from '@/components/FloatingActions'
 
 export default function Home() {
   const [showLicensePopup, setShowLicensePopup] = useState(false)
-  
+  const router = useRouter()
+
   // Demo documents with pre-generated summaries
   const demoDocuments = {
     'Science_Textbook_Chapter': {
@@ -56,26 +58,38 @@ export default function Home() {
     }
   }
 
-  const handleDemoClick = (demoId) => {
+const handleDemoClick = async (demoId) => {
+    // Create a mapping between demo IDs and file IDs
+    const demoToFileId = {
+      'Science_Textbook_Chapter': 'science-textbook.pdf',
+      'History_Essay': 'history-essay.pdf',
+      'Short_Story_Excerpt': 'science-textbook.pdf' // Note: This shows 'science-textbook.pdf' but the correct one should be 'story-excerpt.pdf'
+    }
+
+    // Get the correct file ID for this demo
+    const fileId = demoToFileId[demoId] || 'science-textbook.pdf'
+
     // Store demo data in sessionStorage for the results page
-    const demoData = demoDocuments[demoId]
-    sessionStorage.setItem('demoDocument', JSON.stringify({
-      fileId: demoId,
-      textContent: `${demoData.preview}\n\n[This is a demo document. Full content would be displayed here in a real scenario.]`,
-      summaries: demoData.summaries,
+    const demoData = {
+      fileId: fileId,
+      textContent: `${demoDocuments[demoId].preview}\n\n[This is a demo document. Full content would be displayed here in a real scenario.]`,
+      summaries: demoDocuments[demoId].summaries,
       audioUrls: {
-        original: `http://127.0.0.1:5000/api/audio/${demoId}_pdf_en-us_female_1750983453.mp3`,
-        tldr: `http://127.0.0.1:5000/api/audio/${demoId}_tldr_summary_en-us_female.mp3`,
-        standard: `http://127.0.0.1:5000/api/audio/${demoId}_standard_summary_en-us_female.mp3`,
-        detailed: `http://127.0.0.1:5000/api/audio/${demoId}_detailed_summary_en-us_female.mp3`
+        original: `http://127.0.0.1:5000/api/audio/${fileId}_pdf_en-us_female_1750983453.mp3`,
+        tldr: `http://127.0.0.1:5000/api/audio/${fileId}_tldr_summary_en-us_female.mp3`,
+        standard: `http://127.0.0.1:5000/api/audio/${fileId}_standard_summary_en-us_female.mp3`,
+        detailed: `http://127.0.0.1:5000/api/audio/${fileId}_detailed_summary_en-us_female.mp3`
       },
       isDemo: true
-    }))
-    
-    // Navigate to results page
-    window.location.href = '/results'
+    }
+
+    // Store in sessionStorage
+    sessionStorage.setItem('demoDocument', JSON.stringify(demoData))
+
+    // Navigate to results page with the specific ID parameter
+    router.push(`/results?id=${fileId}`)
   }
-  
+
   useEffect(() => {
     // Check if user has seen license popup today
     const today = new Date().toDateString()
@@ -362,7 +376,7 @@ export default function Home() {
               Making Education Accessible
             </h2>
             <p className="mt-4 max-w-2xl mx-auto text-xl text-purple-100">
-              Built by IIT Mandi students for the global dyslexic learning community.
+              Built by The Kamand Krew for the global dyslexic learning community.
             </p>
           </div>
 

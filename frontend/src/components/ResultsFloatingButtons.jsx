@@ -2,16 +2,23 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useRouter } from 'next/navigation'
+import EnhancedImpactDashboard from '@/components/EnhancedImpactDashboard'
+import EnhancedPerformanceAnalytics from '@/components/EnhancedPerformanceAnalytics'
+import EnhancedCollaborationHub from '@/components/EnhancedCollaborationHub'
 
-export default function ResultsFloatingButtons({ 
-  fileId, 
-  textStats, 
-  onShowImpact, 
-  onShowPerformance, 
-  onShowCollaboration 
+export default function ResultsFloatingButtons({
+  fileId,
+  textStats,
+  onShowImpact,
+  onShowPerformance,
+  onShowCollaboration
 }) {
-  const [showMenu, setShowMenu] = useState(false)
-  // Generate meaningful data based on the document
+  const router = useRouter()
+  const [showImpactDashboard, setShowImpactDashboard] = useState(false)
+  const [showPerformanceAnalytics, setShowPerformanceAnalytics] = useState(false)
+  const [showCollaborationHub, setShowCollaborationHub] = useState(false)
+
   const generateImpactData = () => {
     const wordCount = textStats?.words || 500
     const baseScore = Math.min(95, 70 + Math.floor(wordCount / 50))
@@ -21,7 +28,7 @@ export default function ResultsFloatingButtons({
       accessibilityScore: `${baseScore}%`,
       userSatisfaction: `${Math.min(98, 85 + Math.floor(wordCount / 100))}%`,
       totalUsers: Math.floor(wordCount / 50) + 127,
-      languagesSupported: 3,
+      languagesSupported: 2,
       platformReach: '70M+ dyslexic learners',
       educationImpact: 'Enhanced learning accessibility'
     }
@@ -66,80 +73,114 @@ export default function ResultsFloatingButtons({
     }
   }
 
-  const actions = [
-    {
-      id: 'impact',
-      label: 'Impact Dashboard',
-      icon: '📊',
-      color: 'bg-blue-500 hover:bg-blue-600',
-      onClick: () => onShowImpact(generateImpactData())
-    },
-    {
-      id: 'performance',
-      label: 'Performance Analytics',
-      icon: '⚡',
-      color: 'bg-green-500 hover:bg-green-600',
-      onClick: () => onShowPerformance(generatePerformanceData())
-    },    {
-      id: 'collaboration',
-      label: 'Collaboration Hub',
-      icon: '👥',
-      color: 'bg-purple-500 hover:bg-purple-600',
-      onClick: () => onShowCollaboration(generateCollaborationData())
-    },
-    {
-      id: 'help',
-      label: 'Help',
-      icon: '❓',
-      color: 'bg-orange-500 hover:bg-orange-600',
-      onClick: () => window.open('/project-overview', '_blank')
+  const handleImpactClick = () => {
+    if (onShowImpact) {
+      onShowImpact(generateImpactData())
     }
-  ]
+    setShowImpactDashboard(true)
+  }
+
+  const handlePerformanceClick = () => {
+    if (onShowPerformance) {
+      onShowPerformance(generatePerformanceData())
+    }
+    setShowPerformanceAnalytics(true)
+  }
+
+  const handleCollaborationClick = () => {
+    if (onShowCollaboration) {
+      onShowCollaboration(generateCollaborationData())
+    }
+    setShowCollaborationHub(true)
+  }
 
   return (
-    <div className="fixed bottom-6 right-6 z-40">
-      <AnimatePresence>
-        {showMenu && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            className="absolute bottom-16 right-0 space-y-3"
-          >
-            {actions.map((action, index) => (
-              <motion.button
-                key={action.id}
-                initial={{ x: 50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: 50, opacity: 0 }}
-                transition={{ delay: index * 0.1 }}
-                onClick={() => {
-                  action.onClick();
-                  setShowMenu(false);
-                }}
-                className={`flex items-center space-x-3 px-4 py-3 ${action.color} text-white rounded-lg shadow-lg hover:shadow-xl transition-all group`}
-              >
-                <span className="text-lg">{action.icon}</span>
-                <span className="text-sm font-medium whitespace-nowrap">{action.label}</span>
-              </motion.button>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <>
+      {/* Main Floating Actions - Only the 3 buttons you requested */}
+      <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
+        {/* Impact Dashboard */}
+        <motion.button
+          onClick={handleImpactClick}
+          className="group relative bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          title="Impact Dashboard 📊"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white px-2 py-1 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+            Impact Dashboard
+          </div>
+        </motion.button>
 
-      {/* Main FAB */}
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => setShowMenu(!showMenu)}
-        className={`w-14 h-14 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center text-white text-xl ${
-          showMenu 
-            ? 'bg-red-500 hover:bg-red-600 rotate-45' 
-            : 'bg-indigo-500 hover:bg-indigo-600'
-        }`}
-      >
-        {showMenu ? '✕' : '📋'}
-      </motion.button>
-    </div>
+        {/* Performance Analytics */}
+        <motion.button
+          onClick={handlePerformanceClick}
+          className="group relative bg-gradient-to-r from-green-500 to-teal-600 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          title="Performance Analytics ⚡"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white px-2 py-1 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+            Performance Analytics
+          </div>
+        </motion.button>
+
+        {/* Team Collaboration */}
+        <motion.button
+          onClick={handleCollaborationClick}
+          className="group relative bg-gradient-to-r from-orange-500 to-red-600 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          title="Team Collaboration 👥"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white px-2 py-1 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+            Team Collaboration
+          </div>
+        </motion.button>
+
+        {/* Back to Home Button */}
+        <motion.button
+          onClick={() => router.push('/')}
+          className="group relative bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          title="Back to Home"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white px-2 py-1 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+            Back to Home
+          </div>
+        </motion.button>
+      </div>
+
+      {/* Enhanced Modals */}
+      <EnhancedImpactDashboard
+        isVisible={showImpactDashboard}
+        onClose={() => setShowImpactDashboard(false)}
+        data={generateImpactData()}
+      />
+
+      <EnhancedPerformanceAnalytics
+        isVisible={showPerformanceAnalytics}
+        onClose={() => setShowPerformanceAnalytics(false)}
+        data={generatePerformanceData()}
+      />
+
+      <EnhancedCollaborationHub
+        isVisible={showCollaborationHub}
+        onClose={() => setShowCollaborationHub(false)}
+        data={generateCollaborationData()}
+      />
+    </>
   )
 }

@@ -29,6 +29,7 @@ export default function SummarySection({ fileId, initialSummaries }) {
     standard: null,
     detailed: null
   });
+
   // Update global state when summaries change
   useEffect(() => {
     if (fileId && summaries) {
@@ -76,7 +77,8 @@ export default function SummarySection({ fileId, initialSummaries }) {
   const [fileChecked, setFileChecked] = useState(false);
   const [fileExists, setFileExists] = useState(null);
   const [error, setError] = useState(null);
-    // Track generation progress for each type
+
+  // Track generation progress for each type
   const [generationStatus, setGenerationStatus] = useState({
     tldr: { loading: false, progress: 0, error: null, startTime: null },
     standard: { loading: false, progress: 0, error: null, startTime: null },
@@ -98,9 +100,10 @@ export default function SummarySection({ fileId, initialSummaries }) {
   const [useDyslexicFont, setUseDyslexicFont] = useState(true);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speakingType, setSpeakingType] = useState(null);
-  const [readingMode, setReadingMode] = useState('normal'); // normal, focus, highlight
+  const [readingMode, setReadingMode] = useState('normal');
   const [currentParagraph, setCurrentParagraph] = useState(0);
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(false);
+  const [speakError, setSpeakError] = useState(null);
   
   const contentRef = useRef(null);
 
@@ -136,6 +139,7 @@ export default function SummarySection({ fileId, initialSummaries }) {
       setCurrentSearchIndex(0);
     }
   }, [summaries, activeTab, performSearch]);
+
   const navigateSearch = useCallback((direction) => {
     if (searchResults.length === 0) return;
     
@@ -147,53 +151,66 @@ export default function SummarySection({ fileId, initialSummaries }) {
     
     // Auto-scroll to result
     if (contentRef.current) {
-      const words = contentRef.current.querySelectorAll('.word');
-      const targetWord = words[searchResults[newIndex]];
-      if (targetWord) {
-        targetWord.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+      const text = contentRef.current.textContent || '';
+      const targetIndex = searchResults[newIndex].index;
+      // Scroll to the search result (simplified approach)
+      contentRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, [searchResults, currentSearchIndex]);
 
-  // Text-to-speech functionality
+  // Enhanced text-to-speech functionality
   const speakSummary = useCallback(() => {
     const currentSummary = summaries[activeTab];
     if (!currentSummary) return;
 
-    if (speechSynthesis.speaking) {
-      speechSynthesis.cancel();
-      setIsSpeaking(false);
-      setSpeakingType(null);
+    if (!window.speechSynthesis) {
+      setSpeakError("Your browser doesn't support speech synthesis");
+      setTimeout(() => setSpeakError(null), 3000);
       return;
     }
 
-    const utterance = new SpeechSynthesisUtterance(currentSummary);
-    utterance.rate = 0.9;
-    utterance.pitch = 1.0;
-    utterance.volume = 1.0;
+    try {
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+        setIsSpeaking(false);
+        setSpeakingType(null);
+        return;
+      }
 
-    const voices = speechSynthesis.getVoices();
-    const englishVoices = voices.filter(voice => voice.lang.includes('en'));
-    if (englishVoices.length > 0) {
-      utterance.voice = englishVoices[0];
+      const utterance = new SpeechSynthesisUtterance(currentSummary);
+      utterance.rate = 0.9;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+
+      const voices = speechSynthesis.getVoices();
+      const englishVoices = voices.filter(voice => voice.lang.includes('en'));
+      if (englishVoices.length > 0) {
+        utterance.voice = englishVoices[0];
+      }
+
+      utterance.onstart = () => {
+        setIsSpeaking(true);
+        setSpeakingType(activeTab);
+      };
+      
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        setSpeakingType(null);
+      };
+      
+      utterance.onerror = () => {
+        setIsSpeaking(false);
+        setSpeakingType(null);
+        setSpeakError("Error while speaking text");
+        setTimeout(() => setSpeakError(null), 3000);
+      };
+
+      speechSynthesis.speak(utterance);
+    } catch (err) {
+      console.error("Speech synthesis error:", err);
+      setSpeakError("Failed to speak text. Please try again.");
+      setTimeout(() => setSpeakError(null), 3000);
     }
-
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-      setSpeakingType(activeTab);
-    };
-    
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      setSpeakingType(null);
-    };
-    
-    utterance.onerror = () => {
-      setIsSpeaking(false);
-      setSpeakingType(null);
-    };
-
-    speechSynthesis.speak(utterance);
   }, [summaries, activeTab]);
 
   // Auto-scroll functionality
@@ -218,6 +235,7 @@ export default function SummarySection({ fileId, initialSummaries }) {
       }
     }
   }, [autoScrollEnabled]);
+
   // Highlight search results in text
   const highlightSearchResults = useCallback((text) => {
     if (!searchQuery.trim() || !text) return text;
@@ -226,48 +244,6 @@ export default function SummarySection({ fileId, initialSummaries }) {
     return text.replace(regex, '<mark class="bg-yellow-200 px-1 rounded">$1</mark>');
   }, [searchQuery]);
 
-  // Text-to-speech functionality
-  const speakText = useCallback((text, type) => {
-    if (!text) return;
-    
-    // Stop any ongoing speech
-    window.speechSynthesis.cancel();
-    
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.8;
-    utterance.pitch = 1;
-    utterance.volume = 1;
-    
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-      setSpeakingType(type);
-    };
-    
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      setSpeakingType(null);
-    };
-      utterance.onerror = () => {
-      setIsSpeaking(false);
-      setSpeakingType(null);
-    };
-    
-    window.speechSynthesis.speak(utterance);}, []);
-
-  const stopSpeaking = useCallback(() => {
-    window.speechSynthesis.cancel();
-    setIsSpeaking(false);
-    setSpeakingType(null);
-  }, []);
-
-  // Reading mode functions
-  const highlightText = useCallback((text, query) => {
-    if (!query.trim()) return text;
-    
-    const regex = new RegExp(`(${query.trim()})`, 'gi');
-    return text.replace(regex, '<mark class="bg-yellow-300 px-1 rounded">$1</mark>');
-  }, []);
-  
   // For seeing if any summary type is loading
   const isAnySummaryLoading = 
     generationStatus.tldr.loading || 
@@ -304,7 +280,8 @@ export default function SummarySection({ fileId, initialSummaries }) {
       expectedLength: '400-600 words'
     }
   };
-    // Check file existence and load cached summaries
+
+  // Check file existence and load cached summaries
   useEffect(() => {
     if (!fileId) {
       setFileExists(false);
@@ -400,7 +377,7 @@ export default function SummarySection({ fileId, initialSummaries }) {
       }
     }));
 
-    // Progressive loading simulation
+    // Progressive loading simulation with realistic timing
     const progressSteps = [
       { progress: 15, delay: 300, status: 'Analyzing document...' },
       { progress: 35, delay: 800, status: 'Extracting key concepts...' },
@@ -430,7 +407,7 @@ export default function SummarySection({ fileId, initialSummaries }) {
     .then(data => {
       if (data.success) {
         const summary = data.summary;
-          // Set summary and calculate stats
+        // Set summary and calculate stats
         setSummaries(prev => {
           const newSummaries = {...prev, [type]: summary};
           
@@ -571,9 +548,10 @@ export default function SummarySection({ fileId, initialSummaries }) {
                 </div>
               )}
             </motion.button>
-          ))}        </div>
+          ))}
+        </div>
 
-        {/* Text Controls Toolbar - Matching TextPane */}
+        {/* Enhanced Text Controls Toolbar */}
         {summaries[activeTab] && (
           <div className="mt-4 flex flex-wrap justify-between items-center gap-2 bg-white/70 backdrop-blur-sm rounded-lg p-3 border">
             {/* Search Controls */}
@@ -673,6 +651,19 @@ export default function SummarySection({ fileId, initialSummaries }) {
               {useDyslexicFont ? 'Dyslexic Font' : 'Standard Font'}
             </button>
 
+            {/* Auto-scroll Toggle */}
+            <button
+              onClick={() => setAutoScrollEnabled(!autoScrollEnabled)}
+              className={`px-3 py-1 rounded text-xs font-medium transition-all ${
+                autoScrollEnabled 
+                  ? 'bg-orange-100 text-orange-800' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+              title="Toggle auto-scroll"
+            >
+              {autoScrollEnabled ? 'Auto-scroll On' : 'Auto-scroll Off'}
+            </button>
+
             {/* Text-to-Speech */}
             <button
               onClick={speakSummary}
@@ -684,10 +675,30 @@ export default function SummarySection({ fileId, initialSummaries }) {
               title={isSpeaking && speakingType === activeTab ? 'Stop speaking' : 'Read summary aloud'}
             >
               {isSpeaking && speakingType === activeTab ? 'Stop' : 'Speak'}
+              {isSpeaking && speakingType === activeTab && (
+                <span className="ml-2 w-2 h-2 bg-red-500 rounded-full animate-pulse inline-block"></span>
+              )}
             </button>
           </div>
         )}
       </div>
+      
+      {/* Error notification for speech synthesis */}
+      <AnimatePresence>
+        {speakError && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="m-3 p-2 bg-red-50 text-red-700 text-sm rounded-md border border-red-100 flex items-center"
+          >
+            <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {speakError}
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* Content Area */}
       <div className="flex-1 overflow-hidden">
@@ -731,7 +742,7 @@ export default function SummarySection({ fileId, initialSummaries }) {
             >
               {generationStatus[activeTab].loading ? (
                 <div className="p-6">
-                  {/* Enhanced loading state */}
+                  {/* Enhanced loading state with time estimation */}
                   <div className="mb-6">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center space-x-2">
@@ -744,9 +755,16 @@ export default function SummarySection({ fileId, initialSummaries }) {
                           Generating {summaryTypes[activeTab].name} summary...
                         </span>
                       </div>
-                      <span className="text-sm font-bold text-indigo-900">
-                        {Math.round(generationStatus[activeTab].progress)}%
-                      </span>
+                      <div className="text-right">
+                        <span className="text-sm font-bold text-indigo-900">
+                          {Math.round(generationStatus[activeTab].progress)}%
+                        </span>
+                        {generationStatus[activeTab].startTime && (
+                          <div className="text-xs text-indigo-600">
+                            {Math.round((Date.now() - generationStatus[activeTab].startTime) / 1000)}s elapsed
+                          </div>
+                        )}
+                      </div>
                     </div>
                     
                     <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
@@ -759,13 +777,14 @@ export default function SummarySection({ fileId, initialSummaries }) {
                     </div>
                     
                     <div className="mt-2 text-xs text-indigo-600">
-                      Expected length: {summaryTypes[activeTab].expectedLength}
+                      Expected length: {summaryTypes[activeTab].expectedLength} • 
+                      Estimated time: {activeTab === 'tldr' ? '10-15s' : activeTab === 'standard' ? '15-25s' : '25-40s'}
                     </div>
                   </div>
                   
-                  {/* Animated skeleton */}
+                  {/* Animated skeleton with realistic content preview */}
                   <div className="space-y-4">
-                    {[...Array(6)].map((_, i) => (
+                    {[...Array(activeTab === 'tldr' ? 3 : activeTab === 'standard' ? 5 : 8)].map((_, i) => (
                       <motion.div
                         key={i}
                         initial={{ opacity: 0.3 }}
@@ -779,8 +798,8 @@ export default function SummarySection({ fileId, initialSummaries }) {
                 </div>
               ) : summaries[activeTab] ? (
                 <div className="p-6">
-                  {/* Summary stats */}
-                  <div className="flex items-center space-x-4 mb-6 p-4 bg-gradient-to-r from-gray-50 to-indigo-50 rounded-lg">
+                  {/* Enhanced summary stats with visual improvements */}
+                  <div className="flex items-center space-x-4 mb-6 p-4 bg-gradient-to-r from-gray-50 to-indigo-50 rounded-lg border">
                     <div className="text-center">
                       <div className="text-lg font-bold text-indigo-900">
                         {summaryStats[activeTab]?.wordCount || 0}
@@ -799,25 +818,49 @@ export default function SummarySection({ fileId, initialSummaries }) {
                       </div>
                       <div className="text-xs text-indigo-600">Read Time</div>
                     </div>
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-green-600">
+                        ✓
+                      </div>
+                      <div className="text-xs text-green-600">Generated</div>
+                    </div>
                   </div>
 
-                  {/* Summary content */}
+                  {/* Enhanced summary content with all TextPane features */}
                   <div 
-                    className="prose prose-indigo max-w-none mb-6"
+                    ref={contentRef}
+                    className="prose prose-indigo max-w-none mb-6 relative overflow-auto select-text"
                     style={{ 
-                      fontFamily, 
-                      lineHeight: lineSpacing 
+                      fontFamily: useDyslexicFont ? 'OpenDyslexic, sans-serif' : fontFamily || 'Inter, sans-serif',
+                      lineHeight: lineSpacingCustom,
+                      fontSize: `${textSize}%`,
+                      letterSpacing: useDyslexicFont ? '0.5px' : 'normal',
+                      wordSpacing: useDyslexicFont ? '0.25em' : 'normal',
+                      background: 'linear-gradient(to right, rgba(255, 250, 240, 0.9), rgba(255, 247, 237, 0.9))',
+                      borderRadius: '8px',
+                      padding: '1.5rem',
+                      maxHeight: '400px',
+                      color: 'rgba(30, 41, 59, 0.95)',
+                      textShadow: '0 1px 0 rgba(255, 255, 255, 0.5)'
                     }}
                   >
-                    <p className="text-gray-800 leading-relaxed whitespace-pre-line">
-                      {summaries[activeTab]}
-                    </p>
+                    <div 
+                      className="text-gray-800 leading-relaxed whitespace-pre-line"
+                      dangerouslySetInnerHTML={{ 
+                        __html: highlightSearchResults(summaries[activeTab]) 
+                      }}
+                    />
                   </div>
 
-                  {/* Key points (for detailed summaries) */}
+                  {/* Key points with enhanced styling */}
                   {keyPoints[activeTab] && keyPoints[activeTab].length > 0 && (
-                    <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
-                      <h4 className="text-sm font-semibold text-indigo-900 mb-3">Key Points:</h4>
+                    <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border">
+                      <h4 className="text-sm font-semibold text-indigo-900 mb-3 flex items-center">
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Key Points:
+                      </h4>
                       <ul className="space-y-2">
                         {keyPoints[activeTab].map((point, index) => (
                           <motion.li
@@ -835,7 +878,7 @@ export default function SummarySection({ fileId, initialSummaries }) {
                     </div>
                   )}
                   
-                  {/* Action buttons */}
+                  {/* Enhanced action buttons */}
                   <div className="flex flex-wrap gap-3">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
@@ -859,6 +902,22 @@ export default function SummarySection({ fileId, initialSummaries }) {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                       <span>Download</span>
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        const selection = window.getSelection();
+                        const text = selection.toString() || summaries[activeTab];
+                        navigator.clipboard.writeText(text);
+                      }}
+                      className="flex items-center space-x-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 text-sm font-medium transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                      <span>Copy Selected</span>
                     </motion.button>
                   </div>
                 </div>
@@ -916,6 +975,11 @@ export default function SummarySection({ fileId, initialSummaries }) {
                     <div className="flex items-center space-x-2">
                       <span>{config.icon}</span>
                       <span className="font-medium text-gray-700">{config.name}</span>
+                      {generationStatus[type].startTime && (
+                        <span className="text-gray-500">
+                          ({Math.round((Date.now() - generationStatus[type].startTime) / 1000)}s)
+                        </span>
+                      )}
                     </div>
                     <span className="font-bold">{Math.round(generationStatus[type].progress)}%</span>
                   </div>
@@ -958,6 +1022,65 @@ export default function SummarySection({ fileId, initialSummaries }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Global styles for enhanced features */}
+      <style jsx global>{`
+        @font-face {
+          font-family: 'OpenDyslexic';
+          src: url('/fonts/OpenDyslexic-Regular.otf') format('opentype');
+          font-weight: normal;
+          font-style: normal;
+          font-display: swap;
+        }
+        
+        @font-face {
+          font-family: 'OpenDyslexic';
+          src: url('/fonts/OpenDyslexic-Bold.otf') format('opentype');
+          font-weight: bold;
+          font-style: normal;
+          font-display: swap;
+        }
+
+        /* Custom scrollbar for content */
+        .prose::-webkit-scrollbar {
+          width: 6px;
+        }
+        
+        .prose::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        
+        .prose::-webkit-scrollbar-thumb {
+          background-color: rgba(99, 102, 241, 0.3);
+          border-radius: 20px;
+        }
+
+        /* Enhanced selection styling */
+        .prose ::selection {
+          background: rgba(79, 70, 229, 0.2);
+          color: #1e293b;
+          text-shadow: none;
+        }
+
+        /* Search highlight styling */
+        .prose mark {
+          background-color: rgba(250, 204, 21, 0.4);
+          padding: 2px 4px;
+          border-radius: 4px;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* Accessibility improvements */
+        .prose:focus-within {
+          outline: 2px solid rgba(99, 102, 241, 0.5);
+          outline-offset: 2px;
+        }
+
+        /* Smooth animations for better UX */
+        .prose * {
+          transition: all 0.2s ease;
+        }
+      `}</style>
     </div>
   );
 }

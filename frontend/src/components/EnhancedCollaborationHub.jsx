@@ -61,10 +61,10 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
       institution: "IIT Mandi, 3rd Year CSE",
       expertise: ["React", "Next.js", "Python", "AI/ML", "Flask", "TensorFlow"],
       contributions: {
-        commits: 156,
+        commits: 30,
         linesAdded: 8420,
         linesRemoved: 2340,
-        filesChanged: 89
+        filesChanged: 34
       },
       recentWork: [
         "Implemented advanced AI summarization engine",
@@ -84,10 +84,10 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
       institution: "IIT Mandi, 3rd Year MnC",
       expertise: ["NLP", "Text Analysis", "TTS Models", "Python", "Linguistics", "Data Science"],
       contributions: {
-        commits: 91,
-        linesAdded: 7000,
-        linesRemoved: 1890,
-        filesChanged: 67
+        commits: 3,
+        linesAdded: 700,
+        linesRemoved: 180,
+        filesChanged: 6
       },
       recentWork: [
         "Trained custom TTS models for better pronunciation",
