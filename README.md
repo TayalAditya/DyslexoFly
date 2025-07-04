@@ -4,7 +4,7 @@
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue)](https://python.org/)
 [![Flask](https://img.shields.io/badge/Flask-2.3.3-lightgrey)](https://flask.palletsprojects.com/)
-[![Hackathon](https://img.shields.io/badge/Hackathon-Code%20for%20Bharat%20S2-orange)](https://www.codeofduty.in/)
+[![Hackathon](https://img.shields.io/badge/Hackathon-Code%20for%20Bharat%20S2-orange)](https://www.codeforbharat.xyz/)
 
 > **Transforming educational content for 70M+ dyslexic learners in India**
 
@@ -17,21 +17,8 @@ DyslexoFly is an innovative AI-powered educational platform designed to make lea
 **🏛️ Institution**: IIT Mandi  
 **👥 Team**: The Kamand Krew  
 **📜 License**: MIT (Open Source)  
-**🌐 Demo**: [https://dyslexofly.vercel.app](https://dyslexofly.vercel.app)
+**🌐 Demo (Planning to deploy)**: [https://dyslexofly.vercel.app](https://dyslexofly.vercel.app) 
 
-## 👥 Meet the Team
-
-### Aditya Tayal - Lead Developer & AI Integration
-- **Institution**: IIT Mandi, 3rd Year CSE
-- **LinkedIn**: [tayal-aditya](https://www.linkedin.com/in/tayal-aditya)
-- **GitHub**: [TayalAditya](https://github.com/TayalAditya)
-- **Expertise**: Full-stack development, AI/ML, React, Python
-
-### Siddhi Pogakwar - TTS Training & Text Analyzer  
-- **Institution**: IIT Mandi, 3rd Year MnC
-- **LinkedIn**: [siddhi-pogakwar-370b732a4](https://www.linkedin.com/in/siddhi-pogakwar-370b732a4)
-- **GitHub**: [SiddhiPogakwar123](https://github.com/SiddhiPogakwar123)
-- **Expertise**: Computational linguistics, NLP, Text-to-speech models
 
 ## ✨ Key Features
 
@@ -318,7 +305,7 @@ copies or substantial portions of the Software.
 - **Microsoft** for Edge-TTS service and accessibility guidelines
 - **OpenDyslexic** font creators for dyslexia-friendly typography
 - **The dyslexia research community** for insights and feedback
-- **IIT Mandi** for academic support and resources
+- **IIT Mandi** for academic support and resources through StudentID
 
 ## 🎯 Future Roadmap
 
