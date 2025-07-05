@@ -268,7 +268,7 @@ export default function Upload() {
               </div>
               
               <div className="mt-4 text-xs text-gray-500">
-                © 2025 DyslexoFly - MIT License | Built for Pragati AI Hackathon
+                © 2025 DyslexoFly - MIT License | Built for Code For Bharat Hackathon
               </div>
             </motion.div>
           </motion.div>
@@ -319,7 +319,7 @@ export default function Upload() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">Multi-Language Audio</h4>
-                    <p className="text-gray-600 text-sm">Text-to-speech in 7 languages with male, female, and child voice options.</p>
+                    <p className="text-gray-600 text-sm">Text-to-speech in 2 languages with male, female, and child voice options.</p>
                   </div>
                 </div>
                 
