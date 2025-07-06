@@ -1045,7 +1045,15 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
                                 <div className="flex items-center space-x-2 mb-1">
                                   <span className="font-semibold text-gray-900">{commit.author}</span>
                                   <span className="text-sm text-gray-500">
-                                    {commit.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    {commit.timestamp.toLocaleDateString('en-US', { 
+                                          day: '2-digit',
+                                          month: 'long',
+                                          year: 'numeric'
+                                        })} at {commit.timestamp.toLocaleTimeString([], { 
+                                          hour: '2-digit', 
+                                          minute: '2-digit',
+                                          hour12: true
+                                        })}
                                   </span>
                                 </div>
                                 <p className="text-gray-700 mb-2">{commit.message}</p>
