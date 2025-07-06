@@ -130,7 +130,8 @@ const handleDemoClick = async (demoId) => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left content */}
             <div className="text-center lg:text-left">
-              <div className="mb-6">
+              <div className="mb-6 space-y-3">
+                
                 <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border border-purple-200">
                   <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
                   Empowering 70M+ Dyslexic Learners in India

@@ -180,12 +180,6 @@ export default function CollaborationHub() {
                     <span className="text-xs font-medium text-green-600">96/100</span>
                   </div>
                 </div>
-
-                <div className="mt-3 p-2 bg-white rounded-lg border border-yellow-300">
-                  <p className="text-xs text-center text-orange-800 font-medium">
-                    🎯 Ready for Grand Finale at Microsoft Office, Noida
-                  </p>
-                </div>
               </section>
 
               {/* Quick Actions */}

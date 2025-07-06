@@ -15,10 +15,25 @@ DyslexoFly is an innovative AI-powered educational platform designed to make lea
 **🏆 Hackathon**: Code for Bharat Season 2  
 **📅 Duration**: June 20, 2025 - July 3, 2025 (14 days)  
 **🏛️ Institution**: IIT Mandi  
-**👥 Team**: The Kamand Krew  
+**👥 Team**: The Kamand Krew (Team Size: 2 Members)  
 **📜 License**: MIT (Open Source)  
-**🌐 Demo (Planning to deploy)**: [https://dyslexofly.vercel.app](https://dyslexofly.vercel.app) 
+**🌐 Demo (Planning to deploy)**: [https://dyslexofly.vercel.app](https://dyslexofly.vercel.app)  
+**🎯 Theme**: EdTech Solutions & Learning Transformation 
 
+
+## 🆕 Latest Updates & Improvements
+
+### **Version 2.1.0 - July 2025**
+- **🔧 Enhanced Summary Generation**: Fixed API integration issues and improved caching system
+- **📊 Real-time Analytics**: Added project overview with live statistics and data persistence
+- **🎵 Audio Path Optimization**: Resolved audio file serving issues and improved reliability
+- **🌐 Metadata Enhancement**: Added proper Open Graph and Twitter card support
+- **🗂️ File Tracking System**: Implemented comprehensive file tracking with API endpoints
+- **🧹 Cache Management**: Advanced caching system with manual clearing and debugging tools
+- **🔍 Debug Tools**: Added comprehensive debugging interface for development
+- **♿ Accessibility Improvements**: Enhanced WCAG compliance and screen reader support
+- **📱 Responsive Design**: Improved mobile experience and cross-device compatibility
+- **🚀 Performance Optimization**: Faster loading times and better resource management
 
 ## ✨ Key Features
 

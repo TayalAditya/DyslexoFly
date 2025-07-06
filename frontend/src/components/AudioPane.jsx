@@ -174,8 +174,10 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
       setDuration(audioRef.current.duration || 0);
 
       // Initialize waveform data - number of bars based on number of words
-      const numBars = Math.min(50, Math.max(10, words.length / 5));
-      wavesRef.current = Array(numBars).fill().map(() => Math.random() * 30 + 10);
+      const numBars = Math.min(50, Math.max(10, Math.floor((words.length || 0) / 6)));
+      // Ensure numBars is a valid positive integer
+      const validNumBars = isNaN(numBars) || numBars <= 0 ? 20 : numBars;
+      wavesRef.current = Array(validNumBars).fill(0).map(() => Math.random() * 30 + 10);
 
       // Set audio info if available
       if (audioUrl) {
@@ -261,11 +263,23 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
   // Processed audio URL for handling different environments
   const processedAudioUrl = useMemo(() => {
     if (!audioUrl) return null;
-    if (audioUrl.startsWith('http')) return audioUrl;
-    if (audioUrl.startsWith('/api/')) return `http://127.0.0.1:5000${audioUrl}`;
-    if (!audioUrl.includes('://') && !audioUrl.startsWith('/api/')) {
-      return `http://127.0.0.1:5000/api/audio/${audioUrl.split('/').pop()}`;
+    
+    // If it's already a full HTTP URL, use it directly (for demo documents)
+    if (audioUrl.startsWith('http://') || audioUrl.startsWith('https://')) {
+      return audioUrl;
     }
+    
+    // If it starts with /api/, prepend the backend URL
+    if (audioUrl.startsWith('/api/')) {
+      return `http://127.0.0.1:5000${audioUrl}`;
+    }
+    
+    // For relative paths or filenames, construct the full API URL
+    if (!audioUrl.includes('://')) {
+      const filename = audioUrl.split('/').pop();
+      return `http://127.0.0.1:5000/api/audio/${filename}`;
+    }
+    
     return audioUrl;
   }, [audioUrl]);
 

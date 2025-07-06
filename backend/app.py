@@ -22,7 +22,9 @@ print(f"UPLOAD FOLDER PATH: {UPLOAD_FOLDER}")
 # Ensure directory exists
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-AUDIO_OUTPUTS_DIR = os.path.abspath('audio_outputs')
+# Use the same audio output directory as TTS service
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+AUDIO_OUTPUTS_DIR = os.path.join(BASE_DIR, 'audio_outputs')
 os.makedirs(AUDIO_OUTPUTS_DIR, exist_ok=True)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -676,6 +678,9 @@ def generate_summary():
         
         print(f"SUMMARY GENERATION REQUEST: file_id={file_id}, summary_type={summaryType}")
 
+        if not file_id:
+            return jsonify({"success": False, "error": "No file ID provided"})
+
         # Check if file exists - exact match first
         file_path = os.path.join(UPLOAD_FOLDER, file_id)
         
@@ -694,7 +699,8 @@ def generate_summary():
         
         if not os.path.exists(file_path):
             print(f"File not found: {file_id}")
-            return jsonify({"success": False, "error": "File not found"})
+            print(f"Available files in upload folder: {os.listdir(UPLOAD_FOLDER) if os.path.exists(UPLOAD_FOLDER) else 'Upload folder does not exist'}")
+            return jsonify({"success": False, "error": f"Document '{file_id}' not found. Please ensure the file has been uploaded successfully."})
             
         print(f"Found file at: {file_path}")
             
@@ -702,17 +708,26 @@ def generate_summary():
         from services.text_processing import extract_text
         document_text = extract_text(file_path)
         
-        if not document_text:
-            return jsonify({"success": False, "error": "Could not extract text from document"})
+        if not document_text or len(document_text.strip()) < 10:
+            print(f"Text extraction failed or insufficient text. Length: {len(document_text) if document_text else 0}")
+            return jsonify({"success": False, "error": "Could not extract sufficient text from document. Please ensure the document contains readable text."})
             
+        print(f"Extracted text length: {len(document_text)} characters")
+        
+        # Generate summary using the summary service
         summary = generate_summary_by_type(document_text, summaryType)
         
+        if not summary or len(summary.strip()) < 10:
+            return jsonify({"success": False, "error": "Failed to generate summary. The document content may be too short or unclear."})
+        
+        print(f"Generated summary length: {len(summary)} characters")
         return jsonify({"success": True, "summary": summary})
             
     except Exception as e:
         import traceback
+        print(f"Error in generate_summary: {str(e)}")
         traceback.print_exc()
-        return jsonify({"success": False, "error": str(e)})
+        return jsonify({"success": False, "error": f"Server error while generating summary: {str(e)}"})
     
 @app.route('/api/cleanup-document', methods=['POST'])
 def cleanup_document():
@@ -828,6 +843,34 @@ def get_file_stats():
     except Exception as e:
         print(f"File stats error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/file-tracking', methods=['GET'])
+def get_file_tracking():
+    """Get file tracking data for analytics"""
+    try:
+        tracking_file_path = os.path.join(app.config['UPLOAD_FOLDER'], '_file_tracking.txt')
+        
+        if not os.path.exists(tracking_file_path):
+            return jsonify({
+                "success": True,
+                "data": "",
+                "message": "No file tracking data available"
+            })
+        
+        with open(tracking_file_path, 'r') as f:
+            content = f.read()
+        
+        return jsonify({
+            "success": True,
+            "data": content
+        })
+    
+    except Exception as e:
+        print(f"Error reading file tracking: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
     
 if __name__ == "__main__":
     print("Starting Flask server...")

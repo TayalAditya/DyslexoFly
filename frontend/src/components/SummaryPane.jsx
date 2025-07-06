@@ -19,7 +19,33 @@ if (typeof window !== 'undefined') {
 // Single source of truth for file checks
 const checkedFiles = {};
 
+// Function to clear all caches and reset state
+const clearAllCaches = () => {
+  // Clear summary cache
+  summaryCache.clearAllCache();
+  
+  // Clear document state manager
+  if (typeof window !== 'undefined') {
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('dyslexofly-') || key.includes('document-state')) {
+        localStorage.removeItem(key);
+      }
+    });
+  }
+  
+  // Clear checked files
+  Object.keys(checkedFiles).forEach(key => delete checkedFiles[key]);
+  
+  console.log('📋 CLEARED: All caches and state cleared');
+};
+
+// Make it available globally for debugging
+if (typeof window !== 'undefined') {
+  window.clearDyslexoFlyCaches = clearAllCaches;
+}
+
 export default function SummarySection({ fileId, initialSummaries }) {
+  console.log(`📋 SUMMARY PANE: Initialized with fileId=${fileId}, initialSummaries=`, initialSummaries);
   const { fontFamily, lineSpacing } = useAccessibility();
   const [activeTab, setActiveTab] = useState('tldr');
   
@@ -47,29 +73,49 @@ export default function SummarySection({ fileId, initialSummaries }) {
     }
   }, [fileId]);
 
-  // Handle initial summaries (for demo documents)
+  // Handle initial summaries (for demo documents only)
   useEffect(() => {
+    console.log('📋 INITIAL SUMMARIES CHECK: initialSummaries=', initialSummaries);
     if (initialSummaries && Object.keys(initialSummaries).length > 0) {
-      console.log('📋 DEMO: Loading initial summaries for', fileId);
-      setSummaries(initialSummaries);
-      setFileExists(true);
-      setFileChecked(true);
+      // Check if these are real summaries or just default "not available" text
+      const hasRealSummaries = Object.values(initialSummaries).some(summary => 
+        summary && 
+        !summary.includes('not available') && 
+        !summary.includes('Brief summary not available') &&
+        !summary.includes('Standard summary not available') &&
+        !summary.includes('Detailed summary not available') &&
+        summary.length > 50
+      );
       
-      // Cache the demo summaries
-      summaryCache.cacheSummaries(fileId, initialSummaries);
+      console.log('📋 INITIAL SUMMARIES: hasRealSummaries=', hasRealSummaries);
+      console.log('📋 INITIAL SUMMARIES: values=', Object.values(initialSummaries));
       
-      // Calculate stats for each summary
-      Object.entries(initialSummaries).forEach(([type, summary]) => {
-        const wordCount = summary.split(' ').length;
-        const readTime = calculateReadingTime(summary);
-        const points = extractKeyPoints(summary);
+      if (hasRealSummaries) {
+        console.log('📋 DEMO: Loading initial summaries for', fileId);
+        setSummaries(initialSummaries);
+        setFileExists(true);
+        setFileChecked(true);
         
-        setSummaryStats(prev => ({...prev, [type]: { wordCount, sentences: summary.split(/[.!?]+/).length - 1 }}));
-        setReadingTime(prev => ({...prev, [type]: readTime}));
-        setKeyPoints(prev => ({...prev, [type]: points}));
-      });
-      
-      return;
+        // Cache the demo summaries
+        summaryCache.cacheSummaries(fileId, initialSummaries);
+        
+        // Calculate stats for each summary
+        Object.entries(initialSummaries).forEach(([type, summary]) => {
+          const wordCount = summary.split(' ').length;
+          const readTime = calculateReadingTime(summary);
+          const points = extractKeyPoints(summary);
+          
+          setSummaryStats(prev => ({...prev, [type]: { wordCount, sentences: summary.split(/[.!?]+/).length - 1 }}));
+          setReadingTime(prev => ({...prev, [type]: readTime}));
+          setKeyPoints(prev => ({...prev, [type]: points}));
+        });
+        
+        return;
+      } else {
+        console.log('📋 SKIPPING: Default "not available" summaries detected, will generate real ones');
+      }
+    } else {
+      console.log('📋 INITIAL SUMMARIES: No initial summaries provided');
     }
   }, [initialSummaries, fileId]);
   
@@ -283,13 +329,16 @@ export default function SummarySection({ fileId, initialSummaries }) {
 
   // Check file existence and load cached summaries
   useEffect(() => {
+    console.log(`📋 FILE CHECK: useEffect triggered for fileId=${fileId}`);
     if (!fileId) {
+      console.log(`📋 FILE CHECK: No fileId provided, setting fileExists=false`);
       setFileExists(false);
       return;
     }
     
     // Try to load cached summaries first from new cache system
     const cachedSummaries = summaryCache.getCachedSummaries(fileId);
+    console.log(`📋 CACHE CHECK: Cached summaries for ${fileId}:`, cachedSummaries);
     if (cachedSummaries) {
       console.log(`📋 CACHE HIT: Loading summaries for ${fileId}`);
       setSummaries(cachedSummaries);
@@ -300,6 +349,7 @@ export default function SummarySection({ fileId, initialSummaries }) {
 
     // Fallback to old cache system
     const cachedDoc = DocumentStateManager.getDocument(fileId);
+    console.log(`📋 LEGACY CACHE CHECK: Document for ${fileId}:`, cachedDoc);
     if (cachedDoc && cachedDoc.summaries) {
       console.log(`📋 LEGACY CACHE: Loading summaries for ${fileId}`);
       setSummaries(cachedDoc.summaries);
@@ -319,6 +369,7 @@ export default function SummarySection({ fileId, initialSummaries }) {
     }
     
     // Mark file as checked BEFORE the request
+    console.log(`📋 FILE CHECK: Making API call to check file existence for ${fileId}`);
     checkedFiles[fileId] = true;
     setFileChecked(true);
     
@@ -332,8 +383,11 @@ export default function SummarySection({ fileId, initialSummaries }) {
       setFileExists(data.exists);
       
       if (data.exists) {
-        // Auto-generate TL;DR first, then others on demand
-        generateSummary('tldr');
+      // Auto-generate TL;DR first, then others on demand
+      console.log(`📋 AUTO-GENERATING: Starting TL;DR summary for ${fileId}`);
+      generateSummary('tldr');
+      } else {
+      console.log(`📋 FILE NOT FOUND: ${fileId} does not exist on server`);
       }
     })
     .catch(err => {
@@ -361,9 +415,32 @@ export default function SummarySection({ fileId, initialSummaries }) {
     return sentences.slice(0, 3).map(s => s.trim());
   };
 
+  // Force regenerate summary bypassing all caches
+  const forceGenerateSummary = (type) => {
+    console.log(`📋 FORCE GENERATE: Bypassing all caches for type=${type}, fileId=${fileId}`);
+    
+    // Clear any existing cache for this file
+    summaryCache.removeCachedSummaries(fileId);
+    
+    // Clear from DocumentStateManager
+    const documents = DocumentStateManager.getStoredDocuments();
+    if (documents[fileId]) {
+      delete documents[fileId].summaries;
+      DocumentStateManager.saveDocument(fileId, documents[fileId]);
+    }
+    
+    // Clear from component state
+    setSummaries(prev => ({...prev, [type]: null}));
+    
+    // Now generate
+    generateSummary(type);
+  };
+
   // Generate single summary type with enhanced progress tracking
   const generateSummary = (type) => {
+    console.log(`📋 GENERATE SUMMARY: Called for type=${type}, fileId=${fileId}`);
     const apiType = getApiType(type);
+    console.log(`📋 GENERATE SUMMARY: API type=${apiType}`);
 
     // Set loading state and start at 0%
     setGenerationStatus(prev => ({
@@ -395,6 +472,7 @@ export default function SummarySection({ fileId, initialSummaries }) {
     });
 
     // Make API call
+    console.log(`📋 API CALL: Making request to generate-summary for fileId=${fileId}, summaryType=${apiType}`);
     fetch('http://127.0.0.1:5000/api/generate-summary', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -403,10 +481,15 @@ export default function SummarySection({ fileId, initialSummaries }) {
         summaryType: apiType
       })
     })
-    .then(res => res.json())
+    .then(res => {
+      console.log(`📋 API RESPONSE: Status=${res.status} for ${fileId}`);
+      return res.json();
+    })
     .then(data => {
+      console.log(`📋 API DATA:`, data);
       if (data.success) {
         const summary = data.summary;
+        console.log(`📋 SUCCESS: Generated summary length=${summary.length} for ${fileId}`);
         // Set summary and calculate stats
         setSummaries(prev => {
           const newSummaries = {...prev, [type]: summary};
@@ -436,6 +519,7 @@ export default function SummarySection({ fileId, initialSummaries }) {
       }
     })
     .catch(err => {
+      console.error(`📋 ERROR: Summary generation failed for ${fileId}:`, err);
       setGenerationStatus(prev => ({
         ...prev,
         [type]: { loading: false, progress: 0, error: err.message, startTime: null }
@@ -934,14 +1018,47 @@ export default function SummarySection({ fileId, initialSummaries }) {
                   </p>
                   
                   {fileId && (
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => generateSummary(activeTab)}
-                      className={`px-6 py-3 bg-gradient-to-r ${summaryTypes[activeTab].color} text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all`}
-                    >
-                      Generate {summaryTypes[activeTab].name} Summary
-                    </motion.button>
+                    <div className="space-y-3">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => generateSummary(activeTab)}
+                        className={`px-6 py-3 bg-gradient-to-r ${summaryTypes[activeTab].color} text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all`}
+                      >
+                        Generate {summaryTypes[activeTab].name} Summary
+                      </motion.button>
+                      
+                      {/* Debug buttons */}
+                      <div className="flex gap-2 text-xs">
+                        <button
+                          onClick={() => forceGenerateSummary(activeTab)}
+                          className="px-3 py-1 bg-green-500 text-white rounded"
+                        >
+                          Force Generate
+                        </button>
+                        <button
+                          onClick={() => {
+                            clearAllCaches();
+                            window.location.reload();
+                          }}
+                          className="px-3 py-1 bg-red-500 text-white rounded"
+                        >
+                          Clear Cache & Reload
+                        </button>
+                        <button
+                          onClick={() => {
+                            console.log('📋 DEBUG: fileId=', fileId);
+                            console.log('📋 DEBUG: fileExists=', fileExists);
+                            console.log('📋 DEBUG: fileChecked=', fileChecked);
+                            console.log('📋 DEBUG: checkedFiles=', checkedFiles);
+                            console.log('📋 DEBUG: summaries=', summaries);
+                          }}
+                          className="px-3 py-1 bg-blue-500 text-white rounded"
+                        >
+                          Debug Info
+                        </button>
+                      </div>
+                    </div>
                   )}
                 </div>
               )}

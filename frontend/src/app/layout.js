@@ -3,12 +3,13 @@ import { Inter } from 'next/font/google'
 import AccessibilityProvider from '@/components/AccessibilityProvider'
 import Navbar from '@/components/Navbar'
 import PageTransition from '@/components/PageTransition'
-import FloatingActionsWrapper from '@/components/FloatingActionsWrapper'
+import ConditionalFloatingActions from '@/components/ConditionalFloatingActions'
 import AccessibilityButton from '@/components/AccessibilityButton'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
+  metadataBase: new URL('https://dyslexofly.vercel.app'),
   title: 'DyslexoFly - Accessible Learning Platform for Dyslexic Students',
   description: 'Transforming educational content for dyslexic students with AI-powered tools, text-to-speech, and accessibility features. Making learning accessible for 70M+ dyslexic learners.',
   keywords: 'dyslexia, education, accessibility, text-to-speech, AI summarization, learning disability, educational technology',
@@ -83,7 +84,7 @@ export default function RootLayout({ children }) {
               </PageTransition>
             </main>
             <AccessibilityButton />
-            <FloatingActionsWrapper />
+            <ConditionalFloatingActions />
             <footer className="bg-gray-100 py-4 text-center text-sm text-gray-600">
               DyslexoFly © {new Date().getFullYear()} | Making reading accessible for everyone
             </footer>
