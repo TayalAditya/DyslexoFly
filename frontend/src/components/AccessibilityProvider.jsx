@@ -9,8 +9,6 @@ const AccessibilityContext = createContext({
   setFontSize: () => {},
   lineSpacing: 'normal',
   setLineSpacing: () => {},
-  theme: 'cream',
-  setTheme: () => {}
 })
 
 export function useAccessibility() {

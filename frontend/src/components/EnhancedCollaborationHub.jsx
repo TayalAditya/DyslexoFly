@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
+import dataManager from '@/utils/dataManager'
 
 export default function EnhancedCollaborationHub({ isVisible, onClose }) {
   const [activeTab, setActiveTab] = useState('team')
@@ -113,6 +114,35 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
     { name: "OpenCV", category: "Vision", icon: "👁️", proficiency: 80 }
   ]
 
+  // Load persistent data using data manager
+  const loadPersistentData = () => {
+    try {
+      const teamData = dataManager.getTeamData()
+      const commitData = dataManager.getCommitActivity()
+      const projectStats = dataManager.getProjectStats()
+
+      setTeamMembers(teamData.members)
+      setCommitActivity(commitData.commits)
+      
+      // Calculate team stats from member contributions
+      const totalCommits = teamData.members.reduce((sum, member) => sum + member.contributions.commits, 0)
+      const totalLines = teamData.members.reduce((sum, member) => sum + member.contributions.linesAdded + member.contributions.linesRemoved, 0)
+      const totalFiles = teamData.members.reduce((sum, member) => sum + member.contributions.filesChanged, 0)
+      
+      setTeamStats({
+        totalCommits,
+        linesOfCode: totalLines,
+        filesChanged: totalFiles,
+        issuesResolved: Math.floor(totalCommits * 0.3) // Estimate based on commits
+      })
+      
+      return true
+    } catch (error) {
+      console.warn('Failed to load persistent data:', error)
+      return false
+    }
+  }
+
   // Realistic fallback data based on actual project estimates
   const realisticFallbackData = {
     teamStats: {
@@ -140,7 +170,7 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
           "Integrated text-to-speech functionality with Edge-TTS",
           "Optimized performance for large document processing"
         ],
-        github: "https://github.com/TayalAditya",
+        github: "https://github.com/tayaladitya",
         linkedin: "https://linkedin.com/in/tayal-aditya",
         status: "online",
         currentTask: "Optimizing AI model performance"
@@ -163,7 +193,7 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
           "Implemented language detection features using NLP techniques",
           "Enhanced audio quality optimization for TTS output"
         ],
-        github: "https://github.com/SiddhiPogakwar123",
+        github: "https://github.com/siddhipogakwar123",
         linkedin: "https://www.linkedin.com/in/siddhi-pogakwar-370b732a4",
         status: "online",
         currentTask: "Training multilingual TTS models"
@@ -225,12 +255,18 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
       try {
         setIsLoading(true)
 
+        // First try to load persistent data
+        if (loadPersistentData()) {
+          setIsLoading(false)
+          return
+        }
+
         // First try to fetch all data we need
         const [repoResponse, commitsResponse, contributorsResponse, issuesResponse] = await Promise.all([
-          fetch('https://api.github.com/repos/TayalAditya/DyslexoFly'),
-          fetch('https://api.github.com/repos/TayalAditya/DyslexoFly/commits?per_page=100'),
-          fetch('https://api.github.com/repos/TayalAditya/DyslexoFly/contributors'),
-          fetch('https://api.github.com/repos/TayalAditya/DyslexoFly/issues?state=all')
+          fetch('https://api.github.com/repos/tayaladitya/DyslexoFly'),
+          fetch('https://api.github.com/repos/tayaladitya/DyslexoFly/commits?per_page=100'),
+          fetch('https://api.github.com/repos/tayaladitya/DyslexoFly/contributors'),
+          fetch('https://api.github.com/repos/tayaladitya/DyslexoFly/issues?state=all')
         ])
 
         // Check all responses
@@ -275,11 +311,9 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
         processFullGitHubData(commitsData, commitDetails, contributorsData, issuesData)
       } catch (err) {
         console.error("Error fetching GitHub data:", err)
-        setError(`Failed to load GitHub data: ${err.message}. Using simulated data instead.`)
-        // Use our realistic fallback data
-        setTeamStats(realisticFallbackData.teamStats)
-        setTeamMembers(realisticFallbackData.teamMembers)
-        setCommitActivity(realisticFallbackData.commitActivity)
+        setError(`Failed to load GitHub data: ${err.message}. Using persistent data instead.`)
+        // Use persistent data as fallback
+        loadPersistentData()
         setIsLoading(false)
       }
     }
@@ -445,17 +479,17 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
       const hardcodedMembers = [
         {
           name: "Aditya Tayal",
-          githubUsername: "TayalAditya",
+          githubUsername: "tayaladitya",
           role: "Full-Stack Developer & AI Integration",
           avatar: "/images/at.jpg",
           institution: "IIT Mandi, 3rd Year CSE",
           expertise: ["React", "Next.js", "Python", "AI/ML", "Flask", "TensorFlow"],
-          github: "https://github.com/TayalAditya",
+          github: "https://github.com/tayaladitya",
           linkedin: "https://linkedin.com/in/tayal-aditya",
         },
         {
           name: "Siddhi Pogakwar",
-          githubUsername: "SiddhiPogakwar123",
+          githubUsername: "siddhipogakwar123",
           role: "TTS Training & Text Analysis Specialist",
           avatar: "/images/ssp.jpg",
           institution: "IIT Mandi, 3rd Year MnC",

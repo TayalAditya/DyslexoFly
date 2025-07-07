@@ -1,8 +1,15 @@
 from PyPDF2 import PdfReader
 from docx import Document
 import os
-import magic  # Added for file type detection
 import re
+
+# Try to import magic, but provide fallback if not available
+try:
+    import magic
+    MAGIC_AVAILABLE = True
+except ImportError:
+    print("Warning: python-magic not available, using file extension detection")
+    MAGIC_AVAILABLE = False
 
 def extract_text_from_pdf(file_path):
     """Extract text from PDF files"""
@@ -61,12 +68,20 @@ def extract_text_from_docx(file_path):
 def extract_text(file_path):
     """Enhanced text extraction with PNG/JPEG error handling"""
     try:
-        # Verify actual file type
-        file_type = magic.from_file(file_path, mime=True)
+        # Get file extension
         _, extension = os.path.splitext(file_path)
         extension = extension.lower()
         
-        # Handle based on actual type
+        # Try to get file type using magic if available
+        file_type = ""
+        if MAGIC_AVAILABLE:
+            try:
+                file_type = magic.from_file(file_path, mime=True)
+            except Exception as e:
+                print(f"Magic detection failed: {e}, falling back to extension")
+                file_type = ""
+        
+        # Handle based on file type or extension
         if 'pdf' in file_type or extension == '.pdf':
             return extract_text_from_pdf(file_path)
             

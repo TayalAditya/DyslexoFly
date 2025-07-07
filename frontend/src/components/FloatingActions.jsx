@@ -41,12 +41,22 @@ export default function FloatingActions() {
     loadFileTrackingData()
     startRealTimeUpdates()
     
+    // Add click outside listener to collapse expanded actions
+    const handleClickOutside = (event) => {
+      if (isExpanded && !event.target.closest('.floating-actions-container')) {
+        setIsExpanded(false)
+      }
+    }
+    
+    document.addEventListener('click', handleClickOutside)
+    
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
       }
+      document.removeEventListener('click', handleClickOutside)
     }
-  }, [])
+  }, [isExpanded])
 
   const loadProjectData = async () => {
     setLoading(true)
@@ -175,7 +185,7 @@ export default function FloatingActions() {
     <>
       {/* Main Floating Actions Container */}
       <motion.div 
-        className="fixed bottom-6 right-6 z-40"
+        className="fixed bottom-6 right-6 z-40 floating-actions-container"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -656,7 +666,7 @@ export default function FloatingActions() {
                 <div className="flex items-center space-x-4 p-4 bg-orange-50 rounded-xl">
                   <div className="w-12 h-12 bg-orange-200 rounded-full flex items-center justify-center overflow-hidden">
                     <img 
-                      src="frontend\public\images\at.jpg" 
+                      src="/images/at.jpg" 
                       alt="Aditya Tayal"
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -675,7 +685,7 @@ export default function FloatingActions() {
                 <div className="flex items-center space-x-4 p-4 bg-red-50 rounded-xl">
                   <div className="w-12 h-12 bg-red-200 rounded-full flex items-center justify-center overflow-hidden">
                     <img 
-                      src="frontend\public\images\ssp.jpg" 
+                      src="/images/ssp.jpg" 
                       alt="Siddhi Pogakwar"
                       className="w-full h-full object-cover"
                       onError={(e) => {

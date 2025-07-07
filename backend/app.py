@@ -201,6 +201,24 @@ cleanup_thread.start()
 def index():
     return "EdTech Accessibility Hub API is running!"
 
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """Simple health check endpoint"""
+    try:
+        return jsonify({
+            "status": "healthy",
+            "message": "Backend is running properly",
+            "upload_folder": UPLOAD_FOLDER,
+            "upload_folder_exists": os.path.exists(UPLOAD_FOLDER),
+            "audio_folder": AUDIO_OUTPUTS_DIR,
+            "audio_folder_exists": os.path.exists(AUDIO_OUTPUTS_DIR)
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "error": str(e)
+        }), 500
+
 # Update the upload route to handle all file types
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
@@ -253,20 +271,33 @@ def upload_file():
             f.write(f"{filename}|{file_path}|{datetime.now()}\n")
         
         # Extract text based on file type
-        from services.text_processing import extract_text
-        text_content = extract_text(file_path)
-        
-        if not text_content:
+        try:
+            from services.text_processing import extract_text
+            text_content = extract_text(file_path)
+            
+            if not text_content:
+                return jsonify({
+                    "success": False, 
+                    "error": f"Could not extract text from {filename}. Please check if the file contains readable text."
+                }), 400
+            
+            print(f"Extracted text from {filename}: {len(text_content)} characters")
+            
+            # Get text statistics and time estimation
+            stats = get_text_statistics(text_content)
+            estimated_time = estimate_processing_time(text_content)
+        except ImportError as e:
+            print(f"Import error in text processing: {e}")
             return jsonify({
-                "success": False, 
-                "error": f"Could not extract text from {filename}. Please check if the file contains readable text."
-            }), 400
-        
-        print(f"Extracted text from {filename}: {len(text_content)} characters")
-        
-        # Get text statistics and time estimation
-        stats = get_text_statistics(text_content)
-        estimated_time = estimate_processing_time(text_content)
+                "success": False,
+                "error": f"Text processing service unavailable: {str(e)}"
+            }), 500
+        except Exception as e:
+            print(f"Text extraction error: {e}")
+            return jsonify({
+                "success": False,
+                "error": f"Error processing file: {str(e)}"
+            }), 500
         
         # DO NOT generate audio here!
         return jsonify({

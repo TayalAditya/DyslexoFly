@@ -12,6 +12,17 @@ const nextConfig: NextConfig = {
   // ESLint is now enabled during builds
   eslint: {
     dirs: ['src']
+  },
+  images: {
+    domains: ['avatars.githubusercontent.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        port: '',
+        pathname: '/u/**',
+      },
+    ],
   }
 };
 
