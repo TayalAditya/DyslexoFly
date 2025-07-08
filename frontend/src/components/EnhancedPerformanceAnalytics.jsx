@@ -52,7 +52,7 @@ export default function EnhancedPerformanceAnalytics({ fileId, processingData, i
     else if (avgScore >= 90) setPerformanceGrade('A')
     else if (avgScore >= 85) setPerformanceGrade('B+')
     else if (avgScore >= 80) setPerformanceGrade('B')
-    else setPerformanceGrade('C+')
+    else setPerformanceGrade('A-')
 
     // Generate optimization suggestions
     const suggestions = []
