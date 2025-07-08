@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
-import dataManager from '@/utils/dataManager'
 
 export default function EnhancedCollaborationHub({ isVisible, onClose }) {
   const [activeTab, setActiveTab] = useState('team')
@@ -114,42 +113,13 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
     { name: "OpenCV", category: "Vision", icon: "👁️", proficiency: 80 }
   ]
 
-  // Load persistent data using data manager
-  const loadPersistentData = () => {
-    try {
-      const teamData = dataManager.getTeamData()
-      const commitData = dataManager.getCommitActivity()
-      const projectStats = dataManager.getProjectStats()
-
-      setTeamMembers(teamData.members)
-      setCommitActivity(commitData.commits)
-      
-      // Calculate team stats from member contributions
-      const totalCommits = teamData.members.reduce((sum, member) => sum + member.contributions.commits, 0)
-      const totalLines = teamData.members.reduce((sum, member) => sum + member.contributions.linesAdded + member.contributions.linesRemoved, 0)
-      const totalFiles = teamData.members.reduce((sum, member) => sum + member.contributions.filesChanged, 0)
-      
-      setTeamStats({
-        totalCommits,
-        linesOfCode: totalLines,
-        filesChanged: totalFiles,
-        issuesResolved: Math.floor(totalCommits * 0.3) // Estimate based on commits
-      })
-      
-      return true
-    } catch (error) {
-      console.warn('Failed to load persistent data:', error)
-      return false
-    }
-  }
-
   // Realistic fallback data based on actual project estimates
   const realisticFallbackData = {
     teamStats: {
-      totalCommits: 128,
-      linesOfCode: 47200,
-      filesChanged: 312,
-      issuesResolved: 48
+      totalCommits: 22,
+      linesOfCode: 31225,
+      filesChanged: 227,
+      issuesResolved: 15
     },
     teamMembers: [
       {
@@ -159,18 +129,17 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
         institution: "IIT Mandi, 3rd Year CSE",
         expertise: ["React", "Next.js", "Python", "AI/ML", "Flask", "TensorFlow"],
         contributions: {
-          commits: 85,
-          linesAdded: 32400,
-          linesRemoved: 8600,
-          filesChanged: 192
+          commits: 17,
+          linesAdded: 28943,
+          linesRemoved: 4871,
+          filesChanged: 217
         },
         recentWork: [
-          "Implemented advanced AI summarization engine using Transformers",
-          "Built responsive frontend with accessibility features for dyslexic users",
-          "Integrated text-to-speech functionality with Edge-TTS",
-          "Optimized performance for large document processing"
+          "fix(EnhancedCollaborationHub): Update timestamp handling to ensure proper date formatting",
+          "feat: Implement data persistence and loading for collaboration hub",
+          "fix(EnhancedCollaborationHub): Update commit timestamp format to include full date and time"
         ],
-        github: "https://github.com/tayaladitya",
+        github: "https://github.com/TayalAditya",
         linkedin: "https://linkedin.com/in/tayal-aditya",
         status: "online",
         currentTask: "Optimizing AI model performance"
@@ -182,18 +151,17 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
         institution: "IIT Mandi, 3rd Year MnC",
         expertise: ["NLP", "Text Analysis", "TTS Models", "Python", "Linguistics", "Data Science"],
         contributions: {
-          commits: 35,
-          linesAdded: 12800,
-          linesRemoved: 3200,
-          filesChanged: 88
+          commits: 5,
+          linesAdded: 2282,
+          linesRemoved: 948,
+          filesChanged: 10
         },
         recentWork: [
-          "Trained custom TTS models for better pronunciation",
-          "Developed text analysis algorithms for dyslexic patterns",
-          "Implemented language detection features using NLP techniques",
-          "Enhanced audio quality optimization for TTS output"
+          "Updated Performance Grade",
+          "Update AudioPane.jsx",
+          "Trained custom TTS models for better pronunciation"
         ],
-        github: "https://github.com/siddhipogakwar123",
+        github: "https://github.com/SiddhiPogakwar123",
         linkedin: "https://www.linkedin.com/in/siddhi-pogakwar-370b732a4",
         status: "online",
         currentTask: "Training multilingual TTS models"
@@ -255,18 +223,12 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
       try {
         setIsLoading(true)
 
-        // First try to load persistent data
-        if (loadPersistentData()) {
-          setIsLoading(false)
-          return
-        }
-
         // First try to fetch all data we need
         const [repoResponse, commitsResponse, contributorsResponse, issuesResponse] = await Promise.all([
-          fetch('https://api.github.com/repos/tayaladitya/DyslexoFly'),
-          fetch('https://api.github.com/repos/tayaladitya/DyslexoFly/commits?per_page=100'),
-          fetch('https://api.github.com/repos/tayaladitya/DyslexoFly/contributors'),
-          fetch('https://api.github.com/repos/tayaladitya/DyslexoFly/issues?state=all')
+          fetch('https://api.github.com/repos/TayalAditya/DyslexoFly'),
+          fetch('https://api.github.com/repos/TayalAditya/DyslexoFly/commits?per_page=100'),
+          fetch('https://api.github.com/repos/TayalAditya/DyslexoFly/contributors'),
+          fetch('https://api.github.com/repos/TayalAditya/DyslexoFly/issues?state=all')
         ])
 
         // Check all responses
@@ -311,9 +273,11 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
         processFullGitHubData(commitsData, commitDetails, contributorsData, issuesData)
       } catch (err) {
         console.error("Error fetching GitHub data:", err)
-        setError(`Failed to load GitHub data: ${err.message}. Using persistent data instead.`)
-        // Use persistent data as fallback
-        loadPersistentData()
+        setError(`Failed to load GitHub data: ${err.message}. Using simulated data instead.`)
+        // Use our realistic fallback data
+        setTeamStats(realisticFallbackData.teamStats)
+        setTeamMembers(realisticFallbackData.teamMembers)
+        setCommitActivity(realisticFallbackData.commitActivity)
         setIsLoading(false)
       }
     }
@@ -475,21 +439,36 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
     }
 
     const processContributors = (contributorsData, commitsData, commitDetails = []) => {
+      // Define mapping for different Git identities to consolidate contributors
+      const contributorMapping = {
+        // Siddhi's various Git identities
+        "SiddhiPogakwar123": "Siddhi Pogakwar",
+        "Siddhipogakwar123": "Siddhi Pogakwar", 
+        "Siddhi Pogakwar": "Siddhi Pogakwar",
+        "siddhi": "Siddhi Pogakwar",
+        "siddhipogakwar": "Siddhi Pogakwar",
+        // Aditya's identities
+        "TayalAditya": "Aditya Tayal",
+        "Aditya Tayal": "Aditya Tayal",
+        "aditya": "Aditya Tayal",
+        "adityatayal": "Aditya Tayal"
+      }
+
       // Get hardcoded members
       const hardcodedMembers = [
         {
           name: "Aditya Tayal",
-          githubUsername: "tayaladitya",
+          githubUsername: "TayalAditya",
           role: "Full-Stack Developer & AI Integration",
           avatar: "/images/at.jpg",
           institution: "IIT Mandi, 3rd Year CSE",
           expertise: ["React", "Next.js", "Python", "AI/ML", "Flask", "TensorFlow"],
-          github: "https://github.com/tayaladitya",
+          github: "https://github.com/TayalAditya",
           linkedin: "https://linkedin.com/in/tayal-aditya",
         },
         {
           name: "Siddhi Pogakwar",
-          githubUsername: "siddhipogakwar123",
+          githubUsername: "SiddhiPogakwar123",
           role: "TTS Training & Text Analysis Specialist",
           avatar: "/images/ssp.jpg",
           institution: "IIT Mandi, 3rd Year MnC",
@@ -499,26 +478,48 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
         }
       ]
 
-      // Process GitHub contributors
-      const processedMembers = contributorsData.map(contributor => {
-        // Find commits by this author
-        const userCommits = commitsData.filter(commit =>
-          commit.author && commit.author.login === contributor.login
-        )
+      // Consolidate commits by mapping different author identities to canonical names
+      const consolidatedCommits = {}
+      
+      commitsData.forEach(commit => {
+        let authorName = commit.author ? commit.author.login : commit.commit.author.name
+        
+        // Map to canonical name if found in mapping
+        const canonicalName = contributorMapping[authorName] || authorName
+        
+        if (!consolidatedCommits[canonicalName]) {
+          consolidatedCommits[canonicalName] = []
+        }
+        consolidatedCommits[canonicalName].push(commit)
+      })
 
+      // Process consolidated contributors
+      const processedMembers = []
+
+      // Process each canonical contributor
+      Object.keys(consolidatedCommits).forEach(canonicalName => {
+        const userCommits = consolidatedCommits[canonicalName]
+        
+        // Find matching hardcoded member
+        const hardcodedMember = hardcodedMembers.find(m => m.name === canonicalName)
+        
         // Get recent work from commit messages
-        const recentWork = userCommits.slice(0, 3).map(commit =>
+        const recentWork = userCommits.slice(0, 4).map(commit =>
           commit.commit.message.split('\n')[0]
         )
 
-        // Calculate contribution stats
+        // Calculate contribution stats from all commits for this canonical user
         let totalAdditions = 0
         let totalDeletions = 0
         let totalFilesChanged = 0
+        let totalCommits = userCommits.length
 
         // For commits we have details for
         commitDetails.forEach(commit => {
-          if (commit.author && commit.author.login === contributor.login) {
+          const commitAuthor = commit.author ? commit.author.login : commit.commit.author.name
+          const commitCanonicalName = contributorMapping[commitAuthor] || commitAuthor
+          
+          if (commitCanonicalName === canonicalName) {
             if (commit.stats) {
               totalAdditions += commit.stats.additions || 0
               totalDeletions += commit.stats.deletions || 0
@@ -530,20 +531,38 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
         })
 
         // Estimate for commits we don't have details for
-        const commitsWithoutDetails = userCommits.length - commitDetails.filter(c =>
-          c.author && c.author.login === contributor.login
-        ).length
+        const commitsWithDetails = commitDetails.filter(c => {
+          const commitAuthor = c.author ? c.author.login : c.commit.author.name
+          const commitCanonicalName = contributorMapping[commitAuthor] || commitAuthor
+          return commitCanonicalName === canonicalName
+        }).length
 
-        // Use realistic averages if we have some commit details
-        let avgAdditions = 200 // default average
-        let avgDeletions = 50  // default average
-        let avgFiles = 3       // default average
+        const commitsWithoutDetails = totalCommits - commitsWithDetails
 
-        if (commitDetails.length > 0) {
-          // Calculate averages from commits we have details for
-          const commitsWithDetailsForUser = commitDetails.filter(c =>
-            c.author && c.author.login === contributor.login
-          )
+        // Use realistic averages based on contributor
+        let avgAdditions, avgDeletions, avgFiles
+        
+        if (canonicalName === "Aditya Tayal") {
+          avgAdditions = 380  // Higher for main developer
+          avgDeletions = 100
+          avgFiles = 4
+        } else if (canonicalName === "Siddhi Pogakwar") {
+          avgAdditions = 320  // Good contributions for specialist
+          avgDeletions = 80
+          avgFiles = 3
+        } else {
+          avgAdditions = 200  // Default
+          avgDeletions = 50
+          avgFiles = 3
+        }
+
+        if (commitsWithDetails > 0) {
+          // Calculate averages from commits we have details for this user
+          const commitsWithDetailsForUser = commitDetails.filter(c => {
+            const commitAuthor = c.author ? c.author.login : c.commit.author.name
+            const commitCanonicalName = contributorMapping[commitAuthor] || commitAuthor
+            return commitCanonicalName === canonicalName
+          })
 
           if (commitsWithDetailsForUser.length > 0) {
             let sumAdditions = 0
@@ -570,48 +589,50 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
         totalDeletions += commitsWithoutDetails * avgDeletions
         totalFilesChanged += commitsWithoutDetails * avgFiles
 
-        // Find matching hardcoded member if any
-        const hardcodedMember = hardcodedMembers.find(m =>
-          m.githubUsername === contributor.login
-        )
-
-        return {
-          name: hardcodedMember ? hardcodedMember.name : contributor.login,
+        // Create member object
+        const member = {
+          name: hardcodedMember ? hardcodedMember.name : canonicalName,
           role: hardcodedMember ? hardcodedMember.role : "Developer",
-          avatar: hardcodedMember ? hardcodedMember.avatar : contributor.avatar_url,
+          avatar: hardcodedMember ? hardcodedMember.avatar : "/images/default-avatar.jpg",
           institution: hardcodedMember ? hardcodedMember.institution : "Unknown",
           expertise: hardcodedMember ? hardcodedMember.expertise : ["GitHub", "Open Source"],
           contributions: {
-            commits: contributor.contributions,
-            linesAdded: totalAdditions,
-            linesRemoved: totalDeletions,
-            filesChanged: totalFilesChanged
+            commits: totalCommits,
+            linesAdded: Math.round(totalAdditions),
+            linesRemoved: Math.round(totalDeletions),
+            filesChanged: Math.round(totalFilesChanged)
           },
-          recentWork: recentWork.length > 0 ? recentWork : [
-            "Implemented advanced AI summarization engine",
-            "Fixed critical bug in TTS engine",
-            "Optimized performance for large documents"
-          ],
-          github: contributor.html_url,
+          recentWork: recentWork.length > 0 ? recentWork : (
+            hardcodedMember ? (hardcodedMember.name === "Aditya Tayal" ? [
+              "fix(EnhancedCollaborationHub): Update timestamp handling to ensure proper date formatting",
+              "feat: Implement data persistence and loading for collaboration hub",
+              "fix(EnhancedCollaborationHub): Update commit timestamp format to include full date and time"
+            ] : [
+              "Updated Performance Grade",
+              "Update AudioPane.jsx",
+              "Trained custom TTS models for better pronunciation"
+            ]) : ["Contributing to the project"]
+          ),
+          github: hardcodedMember ? hardcodedMember.github : `https://github.com/${canonicalName}`,
           linkedin: hardcodedMember ? hardcodedMember.linkedin : "",
-          status: Math.random() > 0.5 ? "online" : "offline",
-          currentTask: hardcodedMember ? hardcodedMember.currentTask || "Contributing to the project" :
-                                      "Contributing to the project"
+          status: "online",
+          currentTask: hardcodedMember ? (
+            hardcodedMember.name === "Aditya Tayal" ? "Optimizing AI model performance" : "Training multilingual TTS models"
+          ) : "Contributing to the project"
         }
+
+        processedMembers.push(member)
       })
 
-      // Add any hardcoded members not found in GitHub data
+      // Ensure we have both main contributors even if not found in GitHub data
       hardcodedMembers.forEach(hardcoded => {
-        if (!processedMembers.some(m =>
-          m.name === hardcoded.name ||
-          (m.github && m.github.includes(hardcoded.githubUsername.toLowerCase()))
-        )) {
-          // Estimate contributions for members not in GitHub data
+        if (!processedMembers.some(m => m.name === hardcoded.name)) {
+          // Use realistic contributions based on the provided data
           const estimatedContributions = {
-            commits: hardcoded.name === "Aditya Tayal" ? 85 : 3,
-            linesAdded: hardcoded.name === "Aditya Tayal" ? 32400 : 1280,
-            linesRemoved: hardcoded.name === "Aditya Tayal" ? 8600 : 320,
-            filesChanged: hardcoded.name === "Aditya Tayal" ? 192 : 8
+            commits: hardcoded.name === "Aditya Tayal" ? 17 : 5,
+            linesAdded: hardcoded.name === "Aditya Tayal" ? 28943 : 2282,
+            linesRemoved: hardcoded.name === "Aditya Tayal" ? 4871 : 948,
+            filesChanged: hardcoded.name === "Aditya Tayal" ? 217 : 10
           }
 
           processedMembers.push({
@@ -622,20 +643,18 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
             expertise: hardcoded.expertise,
             contributions: estimatedContributions,
             recentWork: hardcoded.name === "Aditya Tayal" ? [
-              "Implemented advanced AI summarization engine",
-              "Built responsive frontend with accessibility features",
-              "Integrated text-to-speech functionality",
-              "Optimized performance for large documents"
+              "fix(EnhancedCollaborationHub): Update timestamp handling to ensure proper date formatting",
+              "feat: Implement data persistence and loading for collaboration hub",
+              "fix(EnhancedCollaborationHub): Update commit timestamp format to include full date and time"
             ] : [
-              "Trained custom TTS models for better pronunciation",
-              "Developed text analysis algorithms",
-              "Implemented language detection features",
-              "Enhanced audio quality optimization"
+              "Updated Performance Grade",
+              "Update AudioPane.jsx",
+              "Trained custom TTS models for better pronunciation"
             ],
             github: hardcoded.github,
             linkedin: hardcoded.linkedin,
             status: "online",
-            currentTask: hardcoded.currentTask || "Contributing to the project"
+            currentTask: hardcoded.name === "Aditya Tayal" ? "Optimizing AI model performance" : "Training multilingual TTS models"
           })
         }
       })
@@ -1074,20 +1093,20 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
                             <div className="flex items-start space-x-4">
                               <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
                                 {commit.author.charAt(0)}
-                              </div>                      
+                              </div>
                               <div className="flex-1">
                                 <div className="flex items-center space-x-2 mb-1">
                                   <span className="font-semibold text-gray-900">{commit.author}</span>
                                   <span className="text-sm text-gray-500">
-                                    {new Date(commit.timestamp).toLocaleDateString('en-US', { 
-                                      day: '2-digit',
-                                      month: 'long',
-                                      year: 'numeric'
-                                    })} at {new Date(commit.timestamp).toLocaleTimeString([], { 
-                                      hour: '2-digit', 
-                                      minute: '2-digit',
-                                      hour12: true
-                                    })}
+                                    {commit.timestamp.toLocaleDateString('en-US', { 
+                                          day: '2-digit',
+                                          month: 'long',
+                                          year: 'numeric'
+                                        })} at {commit.timestamp.toLocaleTimeString([], { 
+                                          hour: '2-digit', 
+                                          minute: '2-digit',
+                                          hour12: true
+                                        })}
                                   </span>
                                 </div>
                                 <p className="text-gray-700 mb-2">{commit.message}</p>

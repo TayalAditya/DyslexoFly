@@ -61,6 +61,10 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
   // Set dyslexic font as default
   const [useDyslexicFont, setUseDyslexicFont] = useState(true)
   
+  // Captions state
+  const [showCaptions, setShowCaptions] = useState(true) // Show captions by default for first time
+  const [captionsInitialized, setCaptionsInitialized] = useState(false)
+  
   const textScrollRef = useRef(null);
   const audioRef = useRef(null)
   const progressInterval = useRef(null)
@@ -404,6 +408,12 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
     setUseDyslexicFont(prev => !prev);
   };
   
+  // Toggle captions
+  const toggleCaptions = () => {
+    setShowCaptions(prev => !prev)
+    setCaptionsInitialized(true)
+  }
+  
   // Seek audio to new time
   const seekAudio = (newTime) => {
     if (audioRef.current) {
@@ -435,6 +445,13 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
     
     if (isPlaying) {
       console.log("▶️ Playing audio:", processedAudioUrl);
+      
+      // Show captions on first playback if not initialized
+      if (!captionsInitialized) {
+        setShowCaptions(true)
+        setCaptionsInitialized(true)
+      }
+      
       audioRef.current.play().catch(err => {
         console.error("Failed to play:", err);
         setIsPlaying(false);
@@ -443,7 +460,7 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
       console.log("⏸️ Pausing audio");
       audioRef.current.pause();
     }
-  }, [isPlaying, processedAudioUrl]);
+  }, [isPlaying, processedAudioUrl, captionsInitialized]);
 
   // Add to your AudioPane.jsx file
   const [audioFinishedPlaying, setAudioFinishedPlaying] = useState(false);
@@ -904,8 +921,8 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
           ))}
         </div>
         
-        {/* 6. TEXT DISPLAY with Font Toggle */}
-        <div className="mb-2 flex justify-center">
+        {/* 6. TEXT DISPLAY with Font and Captions Toggle */}
+        <div className="mb-2 flex justify-center gap-3">
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
@@ -920,29 +937,100 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
             </svg>
             <span>{!useDyslexicFont ? t.dyslexicFont : t.standardFont}</span>
             {useDyslexicFont && (
-      <span className="ml-1 text-xs bg-indigo-600 text-white px-1.5 py-0.5 rounded-full">ON</span>
-    )}
+              <span className="ml-1 text-xs bg-indigo-600 text-white px-1.5 py-0.5 rounded-full">ON</span>
+            )}
+          </motion.button>
+          
+          {/* Captions toggle button */}
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={toggleCaptions}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium shadow-md flex items-center gap-2 transition-all duration-300
+              ${showCaptions 
+                ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white border border-green-600' 
+                : 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border border-gray-300'}`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m0 0V3a1 1 0 011 1v1M7 4V3a1 1 0 011-1h8a1 1 0 011 1v1m-9 4h10m-10 0V7a1 1 0 011-1h8a1 1 0 011 1v2M7 8v10a1 1 0 001 1h8a1 1 0 001-1V8" />
+            </svg>
+            <span>{showCaptions ? 'Hide Captions' : 'Show Captions'}</span>
+            {showCaptions && (
+              <span className="ml-1 text-xs bg-white/20 text-white px-1.5 py-0.5 rounded-full">ON</span>
+            )}
           </motion.button>
         </div>
         
-        <div className="bg-white/40 backdrop-blur-sm rounded-2xl border border-white/50 p-5 shadow-2xl mb-6 relative overflow-hidden hover:shadow-2xl transition-shadow">
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/30 to-purple-50/30"></div>
-          
-          <div 
-            ref={textScrollRef}
-            className={`relative z-10 h-48 overflow-y-auto text-md leading-relaxed pr-2 text-indigo-900 scrollbar-thin scrollbar-thumb-indigo-300 scrollbar-track-transparent
-              ${useDyslexicFont ? 'font-dyslexic' : 'font-sans'}`}
-            style={{scrollBehavior: 'smooth'}}
-          >
-            {/* Enhanced reading guide line */}
-            <div className="absolute w-full h-9 bg-gradient-to-r from-indigo-200/10 to-purple-200/10 pointer-events-none" 
-                 style={{top: `calc(50% - 1rem)`, left: 0}}></div>
-                 
-            {lines.map((line, i) => (
-              <p key={i} className={`mb-2 ${useDyslexicFont ? 'py-0.5' : ''}`}>{line}</p>
-            ))}
+        {/* Captions/Text Display */}
+        {showCaptions && (
+          <div className="bg-white/40 backdrop-blur-sm rounded-2xl border border-white/50 p-5 shadow-2xl mb-6 relative overflow-hidden hover:shadow-2xl transition-shadow">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/30 to-purple-50/30"></div>
+            
+            {/* Captions header */}
+            <div className="relative z-10 mb-3 flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-indigo-800 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m0 0V3a1 1 0 011 1v1M7 4V3a1 1 0 011-1h8a1 1 0 011 1v1m-9 4h10m-10 0V7a1 1 0 011-1h8a1 1 0 011 1v2M7 8v10a1 1 0 001 1h8a1 0 001-1V8" />
+                </svg>
+                Live Captions
+                {!captionsInitialized && (
+                  <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full animate-pulse">
+                    NEW!
+                  </span>
+                )}
+              </h3>
+              {isPlaying && (
+                <div className="flex items-center gap-1 text-xs text-green-600">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  Following audio
+                </div>
+              )}
+            </div>
+            
+            {/* First-time captions help message */}
+            {!captionsInitialized && (
+              <div className="relative z-10 mb-3 p-3 bg-blue-50/80 border border-blue-200 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div className="text-xs text-blue-800">
+                    <p className="font-medium mb-1">📖 Captions help you follow along!</p>
+                    <p>The text below will automatically scroll and highlight as the audio plays. Perfect for dyslexic users and anyone who wants to read along.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <div 
+              ref={textScrollRef}
+              className={`relative z-10 h-48 overflow-y-auto text-md leading-relaxed pr-2 text-indigo-900 scrollbar-thin scrollbar-thumb-indigo-300 scrollbar-track-transparent
+                ${useDyslexicFont ? 'font-dyslexic' : 'font-sans'}`}
+              style={{scrollBehavior: 'smooth'}}
+            >
+              {/* Enhanced reading guide line */}
+              <div className="absolute w-full h-9 bg-gradient-to-r from-indigo-200/10 to-purple-200/10 pointer-events-none" 
+                   style={{top: `calc(50% - 1rem)`, left: 0}}></div>
+                   
+              {lines.map((line, i) => (
+                <p key={i} className={`mb-2 ${useDyslexicFont ? 'py-0.5' : ''}`}>{line}</p>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+        
+        {/* Show message when captions are hidden */}
+        {!showCaptions && (
+          <div className="bg-gray-100/60 backdrop-blur-sm rounded-2xl border border-gray-200/50 p-5 shadow-lg mb-6 relative overflow-hidden">
+            <div className="text-center text-gray-600">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mx-auto mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+              </svg>
+              <p className="text-sm font-medium">Captions are hidden</p>
+              <p className="text-xs mt-1">Click "Show Captions" to follow along with the audio</p>
+            </div>
+          </div>
+        )}
         
         {/* DOWNLOAD BUTTON */}
         {processedAudioUrl && (
