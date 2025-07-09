@@ -48,10 +48,8 @@ export default function EnhancedPerformanceAnalytics({ fileId, processingData, i
       (100 - metrics.errorRate * 100)
     ) / 5
 
-    if (avgScore >= 95) setPerformanceGrade('A+')
-    else if (avgScore >= 90) setPerformanceGrade('A')
-    else if (avgScore >= 85) setPerformanceGrade('B+')
-    else if (avgScore >= 80) setPerformanceGrade('B')
+    if (avgScore >= 90) setPerformanceGrade('A+')
+    else if (avgScore >= 80) setPerformanceGrade('A')
     else setPerformanceGrade('A-')
 
     // Generate optimization suggestions
