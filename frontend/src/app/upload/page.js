@@ -480,7 +480,7 @@ export default function Upload() {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-medium text-indigo-900">Try a Demo Document</h3>
                 <span className="text-xs bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-3 py-1 rounded-full">
-                  No Backend Needed
+                  No Document to upload? Try DyselxoFly with our demo documents
                 </span>
               </div>
               
@@ -512,7 +512,7 @@ export default function Upload() {
               
               <div className="mt-4 text-center">
                 <p className="text-sm text-indigo-600">
-                  These demo documents showcase the capabilities of DyslexoFly without requiring a backend server.
+                  These demo documents showcase the capabilities of DyslexoFly without requiring any document from your device.
                 </p>
               </div>
             </div>
