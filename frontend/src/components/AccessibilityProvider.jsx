@@ -8,7 +8,7 @@ const AccessibilityContext = createContext({
   fontSize: 'medium',
   setFontSize: () => {},
   lineSpacing: 'normal',
-  setLineSpacing: () => {},
+  setLineSpacing: () => {}
 })
 
 export function useAccessibility() {
@@ -35,13 +35,6 @@ export default function AccessibilityProvider({ children }) {
     }
     return 'normal'
   })
-  const [theme, setTheme] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem('theme')
-      if (savedTheme) return savedTheme
-    }
-    return 'cream' // default theme
-  })
 
   // Font size mappings
   const fontSizeMap = {
@@ -66,28 +59,8 @@ export default function AccessibilityProvider({ children }) {
       document.documentElement.style.setProperty('--font-family', fontFamily)
       document.documentElement.style.setProperty('--font-size', fontSizeMap[fontSize])
       document.documentElement.style.setProperty('--line-height', lineSpacingMap[lineSpacing])
-
-      // Update theme class
-      document.documentElement.classList.remove('theme-light', 'theme-cream', 'theme-dark')
-      document.documentElement.classList.add(`theme-${theme}`)
-
-      // Apply theme-specific colors to CSS variables
-      const root = document.documentElement
-      if (theme === 'light') {
-        root.style.setProperty('--bg-color', '255, 255, 255')
-        root.style.setProperty('--text-color', '30, 41, 59')
-        root.style.setProperty('--accent-color', '59, 130, 246')
-      } else if (theme === 'cream') {
-        root.style.setProperty('--bg-color', '254, 249, 239')
-        root.style.setProperty('--text-color', '55, 65, 81')
-        root.style.setProperty('--accent-color', '217, 119, 6')
-      } else if (theme === 'dark') {
-        root.style.setProperty('--bg-color', '30, 41, 59')
-        root.style.setProperty('--text-color', '243, 244, 246')
-        root.style.setProperty('--accent-color', '56, 182, 255')
-      }
     }
-  }, [fontFamily, fontSize, lineSpacing, theme])
+  }, [fontFamily, fontSize, lineSpacing])
 
   // Save settings to localStorage when changed
   useEffect(() => {
@@ -96,18 +69,16 @@ export default function AccessibilityProvider({ children }) {
         localStorage.setItem('fontFamily', fontFamily)
         localStorage.setItem('fontSize', fontSize)
         localStorage.setItem('lineSpacing', lineSpacing)
-        localStorage.setItem('theme', theme)
       } catch (e) {
         console.error('Failed to save accessibility settings:', e)
       }
     }
-  }, [fontFamily, fontSize, lineSpacing, theme])
+  }, [fontFamily, fontSize, lineSpacing])
 
   const value = {
     fontFamily, setFontFamily,
     fontSize, setFontSize,
-    lineSpacing, setLineSpacing,
-    theme, setTheme
+    lineSpacing, setLineSpacing
   }
 
   return (
