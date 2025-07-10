@@ -401,7 +401,7 @@ def regenerate_audio():
             filename = os.path.basename(output_path)
             return jsonify({
                 "success": True, 
-                "audioPath": f"http://127.0.0.1:5000/api/audio/{filename}"
+                "audioPath": f"https://dyslexofly.onrender.com/api/audio/{filename}"
             })
         else:
             return jsonify({"success": False, "error": "Failed to generate audio"})
@@ -469,7 +469,7 @@ def get_document(file_id):
             audio_files.sort(key=lambda x: os.path.getctime(
                 os.path.join(app.config['AUDIO_OUTPUTS_DIR'], x)), reverse=True)
             
-            audio_path = f"http://127.0.0.1:5000/api/audio/{audio_files[0]}" if audio_files else None
+            audio_path = f"https://dyslexofly.onrender.com/api/audio/{audio_files[0]}" if audio_files else None
             
             return jsonify({
                 "success": True,
@@ -568,34 +568,65 @@ def get_document_status(file_id):
 
 # Add this to handle server shutdown:
 
-@app.teardown_appcontext
-def cleanup_on_shutdown(exception):
-    """Clean up temporary files when server shuts down"""
-    print("Context teardown triggered")
-    # In development mode, don't delete files during auto-reload
-    if not app.debug:
-        print("Production shutdown detected, cleaning up all files...")
+# DISABLED: This was causing files to be deleted after every request
+# @app.teardown_appcontext
+# def cleanup_on_shutdown(exception):
+#     """Clean up temporary files when server shuts down"""
+#     print("Context teardown triggered")
+#     # In development mode, don't delete files during auto-reload
+#     if not app.debug:
+#         print("Production shutdown detected, cleaning up all files...")
+#         
+#         for file_id, data in list(file_tracking.items()):
+#             # Delete uploaded file
+#             if isinstance(data, dict) and 'file_path' in data and os.path.exists(data['file_path']):
+#                 try:
+#                     os.remove(data['file_path'])
+#                     print(f"Deleted uploaded file: {data['file_path']}")
+#                 except Exception as e:
+#                     print(f"Error deleting file {data['file_path']}: {e}")
+#             
+#             # Handle old format of file tracking
+#             elif isinstance(data, (int, float)) and os.path.exists(os.path.join(UPLOAD_FOLDER, file_id)):
+#                 try:
+#                     os.remove(os.path.join(UPLOAD_FOLDER, file_id))
+#                     print(f"Deleted old-format file: {file_id}")
+#                 except Exception as e:
+#                     print(f"Error deleting old-format file {file_id}: {e}")
+#         
+#         # Clear tracking dictionary
+#         file_tracking.clear()
+#         print("Cleanup on shutdown complete")
+
+import atexit
+
+def cleanup_on_exit():
+    """Clean up temporary files when server actually shuts down"""
+    print("Server shutdown detected, cleaning up all files...")
+    
+    for file_id, data in list(file_tracking.items()):
+        # Delete uploaded file
+        if isinstance(data, dict) and 'file_path' in data and os.path.exists(data['file_path']):
+            try:
+                os.remove(data['file_path'])
+                print(f"Deleted uploaded file: {data['file_path']}")
+            except Exception as e:
+                print(f"Error deleting file {data['file_path']}: {e}")
         
-        for file_id, data in list(file_tracking.items()):
-            # Delete uploaded file
-            if isinstance(data, dict) and 'file_path' in data and os.path.exists(data['file_path']):
-                try:
-                    os.remove(data['file_path'])
-                    print(f"Deleted uploaded file: {data['file_path']}")
-                except Exception as e:
-                    print(f"Error deleting file {data['file_path']}: {e}")
-            
-            # Handle old format of file tracking
-            elif isinstance(data, (int, float)) and os.path.exists(os.path.join(UPLOAD_FOLDER, file_id)):
-                try:
-                    os.remove(os.path.join(UPLOAD_FOLDER, file_id))
-                    print(f"Deleted old-format file: {file_id}")
-                except Exception as e:
-                    print(f"Error deleting old-format file {file_id}: {e}")
-        
-        # Clear tracking dictionary
-        file_tracking.clear()
-        print("Cleanup on shutdown complete")
+        # Handle old format of file tracking
+        elif isinstance(data, (int, float)) and os.path.exists(os.path.join(UPLOAD_FOLDER, file_id)):
+            try:
+                os.remove(os.path.join(UPLOAD_FOLDER, file_id))
+                print(f"Deleted old-format file: {file_id}")
+            except Exception as e:
+                print(f"Error deleting old-format file {file_id}: {e}")
+    
+    # Clear tracking dictionary
+    file_tracking.clear()
+    print("Cleanup on exit complete")
+
+# Register cleanup function to run on actual server shutdown
+atexit.register(cleanup_on_exit)
 
 # Debugging endpoints
 print(f"Current working directory: {os.getcwd()}")
