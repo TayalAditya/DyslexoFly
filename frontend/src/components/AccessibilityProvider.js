@@ -8,9 +8,7 @@ const AccessibilityContext = createContext({
   fontSize: 'medium',
   setFontSize: () => {},
   lineSpacing: 'normal',
-  setLineSpacing: () => {},
-  theme: 'light',
-  setTheme: () => {}
+  setLineSpacing: () => {}
 })
 
 export function useAccessibility() {
@@ -21,7 +19,6 @@ export default function AccessibilityProvider({ children }) {
   const [fontFamily, setFontFamily] = useState('Inter var, sans-serif')
   const [fontSize, setFontSize] = useState('medium')
   const [lineSpacing, setLineSpacing] = useState('normal')
-  const [theme, setTheme] = useState('light')
   
   // Font size in pixels based on selection
   const fontSizeMap = {
@@ -44,10 +41,7 @@ export default function AccessibilityProvider({ children }) {
     document.documentElement.style.setProperty('--font-family', fontFamily)
     document.documentElement.style.setProperty('--font-size', fontSizeMap[fontSize])
     document.documentElement.style.setProperty('--line-height', lineSpacingMap[lineSpacing])
-    
-    document.documentElement.classList.remove('theme-light', 'theme-cream', 'theme-dark')
-    document.documentElement.classList.add(`theme-${theme}`)
-  }, [fontFamily, fontSize, lineSpacing, theme])
+  }, [fontFamily, fontSize, lineSpacing])
   
   // Load settings from localStorage on mount
   useEffect(() => {
@@ -55,12 +49,10 @@ export default function AccessibilityProvider({ children }) {
       const savedFont = localStorage.getItem('fontFamily')
       const savedSize = localStorage.getItem('fontSize')
       const savedSpacing = localStorage.getItem('lineSpacing')
-      const savedTheme = localStorage.getItem('theme')
       
       if (savedFont) setFontFamily(savedFont)
       if (savedSize) setFontSize(savedSize)
       if (savedSpacing) setLineSpacing(savedSpacing)
-      if (savedTheme) setTheme(savedTheme)
     } catch (e) {
       console.error('Failed to load accessibility settings:', e)
     }
@@ -72,11 +64,10 @@ export default function AccessibilityProvider({ children }) {
       localStorage.setItem('fontFamily', fontFamily)
       localStorage.setItem('fontSize', fontSize)
       localStorage.setItem('lineSpacing', lineSpacing)
-      localStorage.setItem('theme', theme)
     } catch (e) {
       console.error('Failed to save accessibility settings:', e)
     }
-  }, [fontFamily, fontSize, lineSpacing, theme])
+  }, [fontFamily, fontSize, lineSpacing])
   
   const value = {
     fontFamily,
@@ -84,9 +75,7 @@ export default function AccessibilityProvider({ children }) {
     fontSize,
     setFontSize,
     lineSpacing, 
-    setLineSpacing,
-    theme,
-    setTheme
+    setLineSpacing
   }
   
   return (
