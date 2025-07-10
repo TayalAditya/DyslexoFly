@@ -3,12 +3,9 @@ from flask_cors import CORS
 import os
 from werkzeug.utils import secure_filename
 import time
-from services import text_processing
-from services.text_processing import estimate_processing_time, get_text_statistics
 import threading
 from datetime import datetime, timedelta
 from pathlib import Path
-from services.summary_service import generate_summary_by_type
 from flask import g
 
 app = Flask(__name__)
@@ -284,6 +281,7 @@ def upload_file():
             print(f"Extracted text from {filename}: {len(text_content)} characters")
             
             # Get text statistics and time estimation
+            from services.text_processing import get_text_statistics, estimate_processing_time
             stats = get_text_statistics(text_content)
             estimated_time = estimate_processing_time(text_content)
         except ImportError as e:
@@ -458,7 +456,8 @@ def get_document(file_id):
             print(f"Found file at: {upload_file_path}")
             
             # Use the new text_processing module
-            extracted_text = text_processing.extract_text(upload_file_path)
+            from services.text_processing import extract_text
+            extracted_text = extract_text(upload_file_path)
             
             # Validate extracted text
             if not extracted_text or len(extracted_text.strip()) < 50:
@@ -507,7 +506,8 @@ def get_document_text(file_id):
         
         if os.path.exists(upload_file_path):
             # Use the new text_processing module
-            extracted_text = text_processing.extract_text(upload_file_path)
+            from services.text_processing import extract_text
+            extracted_text = extract_text(upload_file_path)
             
             return jsonify({
                 "success": True,
@@ -746,6 +746,7 @@ def generate_summary():
         print(f"Extracted text length: {len(document_text)} characters")
         
         # Generate summary using the summary service
+        from services.summary_service import generate_summary_by_type
         summary = generate_summary_by_type(document_text, summaryType)
         
         if not summary or len(summary.strip()) < 10:
@@ -853,7 +854,8 @@ def get_file_stats():
         file_path = file_tracking[file_id]['file_path']
         
         # Extract text and get statistics
-        text_content = text_processing.extract_text(file_path)
+        from services.text_processing import extract_text, get_text_statistics, estimate_processing_time
+        text_content = extract_text(file_path)
         if not text_content:
             return jsonify({"success": False, "error": "Could not extract text"}), 400
         
@@ -905,6 +907,7 @@ def get_file_tracking():
     
 if __name__ == "__main__":
     print("Starting Flask server...")
-    port = int(os.environ.get('PORT', 7860))  # HF Spaces uses port 7860
+    port = int(os.environ.get('PORT', 10000))  # Render uses port 10000 by default
     debug = os.environ.get('FLASK_ENV') != 'production'
-    app.run(debug=debug, host='0.0.0.0', port=port)
+    print(f"Server starting on host 0.0.0.0 port {port}")
+    app.run(debug=debug, host='0.0.0.0', port=port, threaded=True)
