@@ -1,16 +1,38 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAccessibility } from './AccessibilityProvider'
 
 export default function AccessibilityMenu() {
   const [isOpen, setIsOpen] = useState(false)
+  const menuRef = useRef(null)
   const {
     fontFamily, setFontFamily,
     fontSize, setFontSize,
-    lineSpacing, setLineSpacing,
-    theme, setTheme
+    lineSpacing, setLineSpacing
   } = useAccessibility()
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsOpen(false)
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside)
+      }
+    }
+  }, [isOpen])
+
+  // Close menu when any setting changes
+  const handleSettingChange = (setter, value) => {
+    setter(value)
+    setIsOpen(false)
+  }
   
   return (
     <div className="relative">
@@ -25,14 +47,14 @@ export default function AccessibilityMenu() {
       </button>
       
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-md p-4 z-50 border border-gray-200">
+        <div ref={menuRef} className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-md p-4 z-50 border border-gray-200">
           <h3 className="text-lg font-semibold mb-4">Accessibility Settings</h3>
           
           <div className="mb-3">
             <label className="block text-sm font-medium text-gray-700 mb-1">Font Type</label>
             <select
               value={fontFamily}
-              onChange={(e) => setFontFamily(e.target.value)}
+              onChange={(e) => handleSettingChange(setFontFamily, e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="Inter var, sans-serif">Default</option>
@@ -46,7 +68,7 @@ export default function AccessibilityMenu() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Font Size</label>
             <select
               value={fontSize}
-              onChange={(e) => setFontSize(e.target.value)}
+              onChange={(e) => handleSettingChange(setFontSize, e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="small">Small</option>
@@ -56,11 +78,11 @@ export default function AccessibilityMenu() {
             </select>
           </div>
           
-          <div className="mb-3">
+          <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">Line Spacing</label>
             <select
               value={lineSpacing}
-              onChange={(e) => setLineSpacing(e.target.value)}
+              onChange={(e) => handleSettingChange(setLineSpacing, e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="condensed">Condensed</option>
@@ -69,37 +91,6 @@ export default function AccessibilityMenu() {
               <option value="extra-spaced">Extra Spaced</option>
             </select>
           </div>
-          
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Theme</label>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                onClick={() => setTheme('light')}
-                className={`p-2 rounded ${theme === 'light' ? 'ring-2 ring-blue-500' : 'border border-gray-300'}`}
-                style={{ backgroundColor: '#ffffff' }}
-              >
-                <div className="h-6 bg-white border border-gray-200"></div>
-                <span className="text-xs mt-1 block">Light</span>
-              </button>
-              <button
-                onClick={() => setTheme('cream')}
-                className={`p-2 rounded ${theme === 'cream' ? 'ring-2 ring-blue-500' : 'border border-gray-300'}`}
-                style={{ backgroundColor: '#fffbeb' }}
-              >
-                <div className="h-6 bg-amber-50 border border-gray-200"></div>
-                <span className="text-xs mt-1 block">Cream</span>
-              </button>
-              <button
-                onClick={() => setTheme('dark')}
-                className={`p-2 rounded ${theme === 'dark' ? 'ring-2 ring-blue-500' : 'border border-gray-300'}`}
-                style={{ backgroundColor: '#111827' }}
-              >
-                <div className="h-6 bg-gray-800 border border-gray-700"></div>
-                <span className="text-xs mt-1 block">Dark</span>
-              </button>
-            </div>
-          </div>
-
           
           <button
             onClick={() => setIsOpen(false)}
