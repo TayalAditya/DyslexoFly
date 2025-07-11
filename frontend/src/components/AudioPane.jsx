@@ -147,12 +147,12 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
     
     // For relative URLs from backend, add proper base URL
     if (audioUrl.startsWith('/api/')) {
-      return `http://127.0.0.1:5000${audioUrl}`;
+      return `https://dyslexofly.onrender.com${audioUrl}`;
     }
     
     // Handle paths that don't have /api/ prefix but should
     if (!audioUrl.includes('://') && !audioUrl.startsWith('/api/')) {
-      return `http://127.0.0.1:5000/api/audio/${audioUrl.split('/').pop()}`;
+      return `https://dyslexofly.onrender.com/api/audio/${audioUrl.split('/').pop()}`;
     }
     
     return audioUrl;
@@ -473,7 +473,7 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
     // Now safe to clean up - but add a small delay to ensure file isn't deleted while still in use
     if (processedAudioUrl) {
       setTimeout(() => {
-        fetch('http://127.0.0.1:5000/api/audio/cleanup', {
+        fetch('https://dyslexofly.onrender.com/api/audio/cleanup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -500,7 +500,7 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
       if (document.hidden && processedAudioUrl) {
         // Tab is inactive, but don't delete if still playing
         // Only mark for cleanup
-        fetch('http://127.0.0.1:5000/api/audio/cleanup', {
+        fetch('https://dyslexofly.onrender.com/api/audio/cleanup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -525,7 +525,7 @@ export default function AudioPane({ audioUrl, onPlayingIndexChange, textContent,
       
       // Clean up audio when component unmounts, but only if playback is done
       if (processedAudioUrl) {
-        fetch('http://127.0.0.1:5000/api/audio/cleanup', {
+        fetch('https://dyslexofly.onrender.com/api/audio/cleanup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

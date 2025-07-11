@@ -51,7 +51,7 @@ export default function Upload() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
       
-      const response = await fetch('http://127.0.0.1:5000/', {
+      const response = await fetch('https://dyslexofly.onrender.com/', {
         signal: controller.signal
       });
       
@@ -63,9 +63,9 @@ export default function Upload() {
       console.error('Backend connection failed:', err);
       
       if (err.name === 'AbortError') {
-        setError('Connection to backend server timed out. Please ensure it is running at http://127.0.0.1:5000');
+        setError('Connection to backend server timed out. Please ensure it is running at https://dyslexofly.onrender.com');
       } else {
-        setError('Cannot connect to backend server. Please ensure it is running at http://127.0.0.1:5000');
+        setError('Cannot connect to backend server. Please ensure it is running at https://dyslexofly.onrender.com');
       }
     }
   }
@@ -103,7 +103,7 @@ export default function Upload() {
         });
       }, 200);
 
-      const response = await fetch('http://127.0.0.1:5000/api/upload', {
+      const response = await fetch('https://dyslexofly.onrender.com/api/upload', {
         method: 'POST',
         body: formData,
         headers: {

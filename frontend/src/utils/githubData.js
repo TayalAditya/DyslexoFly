@@ -69,6 +69,7 @@ export class GitHubDataManager {
           author: 'Aditya Tayal'
         }
       ],
+      totalCommits: 45, // Fallback total commit count
       contributors: [
         {
           login: 'TayalAditya',
@@ -123,6 +124,52 @@ export class GitHubDataManager {
     })
   }
 
+  // Fetch total commit count
+  async getTotalCommitCount() {
+    return this.getCachedOrFetch('totalCommits', async () => {
+      // First, try to get the default branch
+      const repoResponse = await fetch(`${this.baseUrl}/repos/${this.repoOwner}/${this.repoName}`)
+      if (!repoResponse.ok) throw new Error('Failed to fetch repo info')
+      
+      const repoData = await repoResponse.json()
+      const defaultBranch = repoData.default_branch || 'main'
+      
+      // Get commits from the default branch with pagination to count total
+      let totalCommits = 0
+      let page = 1
+      const perPage = 100 // Maximum allowed by GitHub API
+      
+      while (true) {
+        const response = await fetch(
+          `${this.baseUrl}/repos/${this.repoOwner}/${this.repoName}/commits?sha=${defaultBranch}&per_page=${perPage}&page=${page}`
+        )
+        
+        if (!response.ok) {
+          if (response.status === 409) {
+            // Repository is empty, return 0
+            return 0
+          }
+          throw new Error('Failed to fetch commits')
+        }
+        
+        const commits = await response.json()
+        if (commits.length === 0) break
+        
+        totalCommits += commits.length
+        
+        // If we got less than perPage, we've reached the end
+        if (commits.length < perPage) break
+        
+        page++
+        
+        // Safety limit to prevent infinite loops (max 50 pages = 5000 commits)
+        if (page > 50) break
+      }
+      
+      return totalCommits
+    })
+  }
+
   // Fetch contributors
   async getContributors() {
     return this.getCachedOrFetch('contributors', async () => {
@@ -144,9 +191,9 @@ export class GitHubDataManager {
     const repoStats = await this.getRepoStats()
     const commits = await this.getRecentCommits()
     const contributors = await this.getContributors()
-
-    // Calculate realistic metrics based on actual data
-    const totalCommits = commits.length > 0 ? Math.max(30, commits.length * 3) : 32
+    
+    // Get actual total commit count
+    const totalCommits = await this.getTotalCommitCount()
     const daysActive = Math.floor((Date.now() - new Date(repoStats.createdAt).getTime()) / (1000 * 60 * 60 * 24))
     
     return {

@@ -75,10 +75,10 @@ const handleDemoClick = async (demoId) => {
       textContent: `${demoDocuments[demoId].preview}\n\n[This is a demo document. Full content would be displayed here in a real scenario.]`,
       summaries: demoDocuments[demoId].summaries,
       audioUrls: {
-        original: `http://127.0.0.1:5000/api/audio/${fileId}_pdf_en-us_female_1750983453.mp3`,
-        tldr: `http://127.0.0.1:5000/api/audio/${fileId}_tldr_summary_en-us_female.mp3`,
-        standard: `http://127.0.0.1:5000/api/audio/${fileId}_standard_summary_en-us_female.mp3`,
-        detailed: `http://127.0.0.1:5000/api/audio/${fileId}_detailed_summary_en-us_female.mp3`
+        original: `https://dyslexofly.onrender.com/api/audio/${fileId}_pdf_en-us_female_1750983453.mp3`,
+        tldr: `https://dyslexofly.onrender.com/api/audio/${fileId}_tldr_summary_en-us_female.mp3`,
+        standard: `https://dyslexofly.onrender.com/api/audio/${fileId}_standard_summary_en-us_female.mp3`,
+        detailed: `https://dyslexofly.onrender.com/api/audio/${fileId}_detailed_summary_en-us_female.mp3`
       },
       isDemo: true
     }

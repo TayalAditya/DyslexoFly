@@ -25,7 +25,7 @@ export default function EnhancedImpactDashboard({ isVisible, onClose }) {
     const loadRealData = async () => {
       try {
         // Try to fetch real file tracking data
-        const response = await fetch('http://127.0.0.1:5000/api/file-tracking')
+        const response = await fetch('https://dyslexofly.onrender.com/api/file-tracking')
         if (response.ok) {
           const result = await response.json()
           const trackingData = result.data || ''

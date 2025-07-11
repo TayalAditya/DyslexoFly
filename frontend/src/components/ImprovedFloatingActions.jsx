@@ -74,7 +74,7 @@ export default function ImprovedFloatingActions() {
 
   const loadFileTrackingData = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/file-tracking')
+      const response = await fetch('https://dyslexofly.onrender.com/api/file-tracking')
       if (response.ok) {
         const result = await response.json()
         const text = result.data || ''

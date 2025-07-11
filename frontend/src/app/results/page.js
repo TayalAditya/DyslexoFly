@@ -26,17 +26,17 @@ const demoDocumentsData = {
     audio_available: true,
     voiceOptions: {
       "en-us": {
-        "female": "http://127.0.0.1:5000/api/audio/Science_Textbook_Chapter_pdf_en-us_female_1750982208.mp3",
-        "male": "http://127.0.0.1:5000/api/audio/Science_Textbook_Chapter_pdf_en-us_male_1750982299.mp3",
-        "child": "http://127.0.0.1:5000/api/audio/Science_Textbook_Chapter_pdf_en-us_child_1750982247.mp3"
+        "female": "https://dyslexofly.onrender.com/api/audio/Science_Textbook_Chapter_pdf_en-us_female_1750982208.mp3",
+        "male": "https://dyslexofly.onrender.com/api/audio/Science_Textbook_Chapter_pdf_en-us_male_1750982299.mp3",
+        "child": "https://dyslexofly.onrender.com/api/audio/Science_Textbook_Chapter_pdf_en-us_child_1750982247.mp3"
       },
       "en-gb": {
-        "female": "http://127.0.0.1:5000/api/audio/Science_Textbook_Chapter_pdf_en-gb_female_1750982491.mp3",
-        "male": "http://127.0.0.1:5000/api/audio/Science_Textbook_Chapter_pdf_en-gb_male_1750982531.mp3"
+        "female": "https://dyslexofly.onrender.com/api/audio/Science_Textbook_Chapter_pdf_en-gb_female_1750982491.mp3",
+        "male": "https://dyslexofly.onrender.com/api/audio/Science_Textbook_Chapter_pdf_en-gb_male_1750982531.mp3"
       },
       "hi-in": {
-        "female": "http://127.0.0.1:5000/api/audio/Science_Textbook_Chapter_pdf_hi-in_female_1750982346.mp3",
-        "male": "http://127.0.0.1:5000/api/audio/Science_Textbook_Chapter_pdf_hi-in_male_1750982426.mp3"
+        "female": "https://dyslexofly.onrender.com/api/audio/Science_Textbook_Chapter_pdf_hi-in_female_1750982346.mp3",
+        "male": "https://dyslexofly.onrender.com/api/audio/Science_Textbook_Chapter_pdf_hi-in_male_1750982426.mp3"
       }
     }
   },
@@ -48,21 +48,21 @@ const demoDocumentsData = {
       standard: "The Industrial Revolution was a period of rapid industrialization that began in Great Britain in the 18th century and later spread to other countries. It introduced machine manufacturing and transformed society.",
       detailed: "The Industrial Revolution began in Great Britain in the late 1700s and represented a fundamental shift from manual production to machine manufacturing. Key innovations like the steam engine, spinning jenny, and power loom transformed production methods and social structures. As industrialization grew, urbanization accelerated with people migrating from rural areas to factory jobs in cities. Working conditions were often hazardous with long hours, including widespread child labor. The revolution's effects eventually spread across Europe and North America, permanently altering economic systems, class structures, and daily life."
     },
-    audioPath: "http://127.0.0.1:5000/api/audio/History_Essay_pdf_en-us_female_1750983453.mp3",
+    audioPath: "https://dyslexofly.onrender.com/api/audio/History_Essay_pdf_en-us_female_1750983453.mp3",
     audio_available: true,
     voiceOptions: {
       "en-us": {
-        "female": "http://127.0.0.1:5000/api/audio/History_Essay_pdf_en-us_female_1750983453.mp3",
-        "male": "http://127.0.0.1:5000/api/audio/History_Essay_pdf_en-us_male_1750983462.mp3",
-        "child": "http://127.0.0.1:5000/api/audio/History_Essay_pdf_en-us_child_1750983482.mp3"
+        "female": "https://dyslexofly.onrender.com/api/audio/History_Essay_pdf_en-us_female_1750983453.mp3",
+        "male": "https://dyslexofly.onrender.com/api/audio/History_Essay_pdf_en-us_male_1750983462.mp3",
+        "child": "https://dyslexofly.onrender.com/api/audio/History_Essay_pdf_en-us_child_1750983482.mp3"
       },
       "en-gb": {
-        "female": "http://127.0.0.1:5000/api/audio/History_Essay_pdf_en-gb_female_1750983620.mp3",
-        "male": "http://127.0.0.1:5000/api/audio/History_Essay_pdf_en-gb_male_1750983632.mp3"
+        "female": "https://dyslexofly.onrender.com/api/audio/History_Essay_pdf_en-gb_female_1750983620.mp3",
+        "male": "https://dyslexofly.onrender.com/api/audio/History_Essay_pdf_en-gb_male_1750983632.mp3"
       },
       "hi-in": {
-        "female": "http://127.0.0.1:5000/api/audio/History_Essay_pdf_hi-in_female_1750983586.mp3",
-        "male": "http://127.0.0.1:5000/api/audio/History_Essay_pdf_hi-in_male_1750983602.mp3"
+        "female": "https://dyslexofly.onrender.com/api/audio/History_Essay_pdf_hi-in_female_1750983586.mp3",
+        "male": "https://dyslexofly.onrender.com/api/audio/History_Essay_pdf_hi-in_male_1750983602.mp3"
       }
     }
   },
@@ -74,21 +74,21 @@ const demoDocumentsData = {
       standard: "Sarah receives a mysterious letter inviting her to meet someone at a lighthouse where they met ten years ago. She prepares for the journey back to her hometown, reflecting on the past.",
       detailed: "Sarah sits watching rain while contemplating a mysterious letter she received three weeks ago. The note simply says 'Meet me where it all began,' referring to an old lighthouse where she met someone significant ten years earlier. This journey will force her to return to her hometown, a place she has deliberately avoided for years. As she prepares for the trip, she's filled with memories and uncertainty about how both she and the other person may have changed over time. The story creates tension around this upcoming reunion and confrontation with her past."
     },
-    audioPath: "http://127.0.0.1:5000/api/audio/Short_Story_Excerpt_pdf_en-us_female_1750984457.mp3",
+    audioPath: "https://dyslexofly.onrender.com/api/audio/Short_Story_Excerpt_pdf_en-us_female_1750984457.mp3",
     audio_available: true,
     voiceOptions: {
       "en-us": {
-        "female": "http://127.0.0.1:5000/api/audio/Short_Story_Excerpt_pdf_en-us_female_1750984457.mp3",
-        "male": "http://127.0.0.1:5000/api/audio/Short_Story_Excerpt_pdf_en-us_male_1750984471.mp3",
-        "child": "http://127.0.0.1:5000/api/audio/Short_Story_Excerpt_pdf_en-us_child_1750984485.mp3"
+        "female": "https://dyslexofly.onrender.com/api/audio/Short_Story_Excerpt_pdf_en-us_female_1750984457.mp3",
+        "male": "https://dyslexofly.onrender.com/api/audio/Short_Story_Excerpt_pdf_en-us_male_1750984471.mp3",
+        "child": "https://dyslexofly.onrender.com/api/audio/Short_Story_Excerpt_pdf_en-us_child_1750984485.mp3"
       },
       "en-gb": {
-        "female": "http://127.0.0.1:5000/api/audio/Short_Story_Excerpt_pdf_en-gb_female_1750984522.mp3",
-        "male": "http://127.0.0.1:5000/api/audio/Short_Story_Excerpt_pdf_en-gb_male_1750984539.mp3"
+        "female": "https://dyslexofly.onrender.com/api/audio/Short_Story_Excerpt_pdf_en-gb_female_1750984522.mp3",
+        "male": "https://dyslexofly.onrender.com/api/audio/Short_Story_Excerpt_pdf_en-gb_male_1750984539.mp3"
       },
       "hi-in": {
-        "female": "http://127.0.0.1:5000/api/audio/Short_Story_Excerpt_pdf_hi-in_female_1750984496.mp3",
-        "male": "http://127.0.0.1:5000/api/audio/Short_Story_Excerpt_pdf_hi-in_male_1750984513.mp3"
+        "female": "https://dyslexofly.onrender.com/api/audio/Short_Story_Excerpt_pdf_hi-in_female_1750984496.mp3",
+        "male": "https://dyslexofly.onrender.com/api/audio/Short_Story_Excerpt_pdf_hi-in_male_1750984513.mp3"
       }
     }
   }
@@ -171,7 +171,7 @@ function ResultsContent() {
 
         // If no demo document found, try to fetch from backend
         console.log("Fetching document from backend:", fileId);
-        const response = await fetch(`http://127.0.0.1:5000/api/documents/${fileId}`);
+        const response = await fetch(`https://dyslexofly.onrender.com/api/documents/${fileId}`);
 
         if (!response.ok) {
           if (response.status === 404) {

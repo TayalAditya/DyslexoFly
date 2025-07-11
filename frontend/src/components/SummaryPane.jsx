@@ -373,7 +373,7 @@ export default function SummarySection({ fileId, initialSummaries }) {
     checkedFiles[fileId] = true;
     setFileChecked(true);
     
-    fetch('http://127.0.0.1:5000/api/check-file', {
+    fetch('https://dyslexofly.onrender.com/api/check-file', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ fileId })
@@ -473,7 +473,7 @@ export default function SummarySection({ fileId, initialSummaries }) {
 
     // Make API call
     console.log(`📋 API CALL: Making request to generate-summary for fileId=${fileId}, summaryType=${apiType}`);
-    fetch('http://127.0.0.1:5000/api/generate-summary', {
+    fetch('https://dyslexofly.onrender.com/api/generate-summary', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
