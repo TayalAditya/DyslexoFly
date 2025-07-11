@@ -56,7 +56,7 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
     {
       title: "Competition Preparation",
       date: "Jul 6, 2025",
-      status: "Completed",
+      status: "completed",
       description: "Final testing, documentation, and presentation prep",
       icon: "🏆"
     },
