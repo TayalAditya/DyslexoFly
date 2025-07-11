@@ -56,13 +56,13 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
     {
       title: "Competition Preparation",
       date: "Jul 6, 2025",
-      status: "in-progress",
+      status: "Completed",
       description: "Final testing, documentation, and presentation prep",
       icon: "🏆"
     },
     {
       title: "Deployment & Launch",
-      date: "Jul 9, 2025",
+      date: "Jul 12, 2025",
       status: "planned",
       description: "Production deployment and public launch",
       icon: "🌟"
