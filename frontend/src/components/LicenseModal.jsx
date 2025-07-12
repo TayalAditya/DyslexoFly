@@ -112,7 +112,7 @@ export default function LicenseModal({ isOpen, onClose }) {
                 </div>
               </div>
 
-              {/* Team Credits */}
+              {/* Team Credits
               <div className="bg-purple-50 rounded-2xl p-6 border border-purple-200">
                 <h4 className="font-bold text-purple-900 mb-4 flex items-center">
                   <span className="text-xl mr-2">👥</span>
@@ -138,7 +138,7 @@ export default function LicenseModal({ isOpen, onClose }) {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
