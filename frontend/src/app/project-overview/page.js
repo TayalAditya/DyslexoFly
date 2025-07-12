@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 
 export default function ProjectOverview() {
@@ -42,7 +43,7 @@ export default function ProjectOverview() {
   const [fileTrackingData, setFileTrackingData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const loadFileTrackingData = async () => {
+  const loadFileTrackingData = useCallback(async () => {
     try {
       const response = await fetch('https://dyslexofly.onrender.com/api/file-tracking');
       if (response.ok) {
@@ -112,7 +113,7 @@ export default function ProjectOverview() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const getFileTypeStats = (files) => {
     const types = {};
@@ -166,7 +167,7 @@ export default function ProjectOverview() {
   // Load file tracking data
   useEffect(() => {
     loadFileTrackingData();
-  }, []);
+  }, [loadFileTrackingData]);
 
   // Scroll event listener to reveal sections
   useEffect(() => {
@@ -196,7 +197,7 @@ export default function ProjectOverview() {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [sectionRefs]);
 
   // Team member card flip state
   const [flippedCard, setFlippedCard] = useState(null);
@@ -320,19 +321,16 @@ export default function ProjectOverview() {
                   <div className="absolute w-full h-full backface-hidden team-card-front p-5">
                     <div className="flex items-start">
                       <div className="mr-4 flex-shrink-0">
-                        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-indigo-100">
-                          <img 
+                        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-indigo-100 relative">
+                          <Image 
                             src="/images/at.jpg" 
                             alt="Aditya Tayal"
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.nextSibling.style.display = 'flex';
+                            fill
+                            className="object-cover"
+                            onError={() => {
+                              // Fallback handled by Next.js Image component
                             }}
                           />
-                          <div className="w-full h-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white font-bold text-xl" style={{display: 'none'}}>
-                            AT
-                          </div>
                         </div>
                       </div>
                       <div>
@@ -376,19 +374,16 @@ export default function ProjectOverview() {
                   <div className="absolute w-full h-full backface-hidden team-card-front p-5">
                     <div className="flex items-start">
                       <div className="mr-4 flex-shrink-0">
-                        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-indigo-100">
-                          <img 
+                        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-indigo-100 relative">
+                          <Image 
                             src="/images/ssp.jpg" 
                             alt="Siddhi Pogakwar"
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.nextSibling.style.display = 'flex';
+                            fill
+                            className="object-cover"
+                            onError={() => {
+                              // Fallback handled by Next.js Image component
                             }}
                           />
-                          <div className="w-full h-full bg-gradient-to-br from-pink-400 to-red-600 flex items-center justify-center text-white font-bold text-xl" style={{display: 'none'}}>
-                            SP
-                          </div>
                         </div>
                       </div>
                       <div>

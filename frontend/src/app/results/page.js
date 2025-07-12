@@ -224,7 +224,7 @@ function ResultsContent() {
         }));
       }, 15000);
 
-      fetch(`http://localhost:5000/api/documents/${fileId}/extracted-text`)
+      fetch(`https://dyslexofly.onrender.com/api/documents/${fileId}/extracted-text`)
         .then(response => {
           clearTimeout(fetchTimeout);
           console.log("Text fetch response status:", response.status);
@@ -284,7 +284,7 @@ function ResultsContent() {
 
     try {
       console.log("Requesting audio regeneration with:", newVoice);
-      const response = await fetch('http://localhost:5000/api/regenerate-audio', {
+      const response = await fetch('https://dyslexofly.onrender.com/api/regenerate-audio', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
