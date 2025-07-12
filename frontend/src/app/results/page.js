@@ -3,7 +3,6 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link'
-import { motion } from 'framer-motion';
 import { useAccessibility } from '@/components/AccessibilityProvider'
 import TextPane from '@/components/TextPane'
 import SummarySection from '@/components/SummaryPane'
@@ -141,20 +140,17 @@ function ResultsContent() {
   const searchParams = useSearchParams();
   const fileId = searchParams.get('id') || 'sample';
   const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('text');
   const [currentPlayingIndex, setCurrentPlayingIndex] = useState(null);
   const [isTextLoading, setIsTextLoading] = useState(false);
-  const [voiceOption, setVoiceOption] = useState({ language: 'en-us', gender: 'female' });
-
+  
   const accessibilitySettings = useAccessibility();
 
   useEffect(() => {
     const loadDocument = async () => {
       if (!fileId) return;
 
-      setLoading(true);
       setError(null);
 
       try {
@@ -163,7 +159,6 @@ function ResultsContent() {
         if (demoDoc) {
           console.log("Loading demo document for fileId:", fileId);
           setResult(demoDoc);
-          setLoading(false);
           return;
         }
 
@@ -178,7 +173,6 @@ function ResultsContent() {
             const defaultDemo = Object.values(demoDocumentsData)[0];
             if (defaultDemo) {
               setResult(defaultDemo);
-              setLoading(false);
               return;
             }
             throw new Error(`Document "${fileId}" not found. Please check if the file exists on the server.`);
@@ -190,7 +184,6 @@ function ResultsContent() {
         const data = await response.json();
         console.log("Document loaded successfully");
         setResult(data);
-        setLoading(false);
 
       } catch (err) {
         console.error("Error loading document:", err);
@@ -199,10 +192,8 @@ function ResultsContent() {
         if (fallbackDemo) {
           console.log("Loading fallback demo document");
           setResult(fallbackDemo);
-          setLoading(false);
         } else {
           setError(err.message);
-          setLoading(false);
         }
       }
     };
@@ -291,7 +282,6 @@ function ResultsContent() {
       }
     }
 
-    setLoading(true);
     try {
       console.log("Requesting audio regeneration with:", newVoice);
       const response = await fetch('http://localhost:5000/api/regenerate-audio', {
@@ -320,8 +310,6 @@ function ResultsContent() {
     } catch (err) {
       console.error('Error regenerating audio', err);
       return Promise.reject(err);
-    } finally {
-      setLoading(false);
     }
   };
 

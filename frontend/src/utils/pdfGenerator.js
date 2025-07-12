@@ -18,7 +18,7 @@ const getImageAsBase64 = async (imagePath) => {
 };
 
 export const generateDyslexoFlyPDF = async (fileId, textContent, summaries, audioUrl) => {
-  console.log('Generating DyslexoFly PDF - 2 Column Layout with Clickable Links');
+  console.log('Generating DyslexoFly PDF - 2 Column Layout');
 
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -131,18 +131,10 @@ export const generateDyslexoFlyPDF = async (fileId, textContent, summaries, audi
   leftY = addHeader('Audio Downloads', leftColumn, leftY, columnWidth);
   
   if (audioUrl) {
-    // If we have an actual audio URL, use it and make it clickable
+    // If we have an actual audio URL, use it
+    const baseUrl = 'https://dyslexofly.onrender.com';
     leftY = addText('Generated Audio File:', leftColumn + 5, leftY, columnWidth - 10, 9, colors.dark, 'bold');
-    
-    // Ensure the URL is complete and clickable
-    let fullAudioUrl = audioUrl;
-    if (audioUrl.startsWith('/api/')) {
-      fullAudioUrl = `https://dyslexofly.onrender.com${audioUrl}`;
-    } else if (!audioUrl.startsWith('http')) {
-      fullAudioUrl = `https://dyslexofly.onrender.com/api/audio/${audioUrl}`;
-    }
-    
-    leftY = addClickableLink(`${fullAudioUrl}`, fullAudioUrl, leftColumn + 5, leftY, columnWidth - 10, 7);
+    leftY = addText(`${baseUrl}${audioUrl}`, leftColumn + 5, leftY, columnWidth - 10, 7, colors.primary);
     leftY = addText('Full text content in audio format', leftColumn + 5, leftY, columnWidth - 10, 7, colors.medium, 'italic');
   } else {
     // Fallback to pattern-based URLs

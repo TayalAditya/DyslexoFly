@@ -1,9 +1,8 @@
 'use client'
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 export default function ProjectOverview() {
   const [activeSection, setActiveSection] = useState(0);
@@ -25,7 +24,7 @@ export default function ProjectOverview() {
       if (saved) {
         try {
           return JSON.parse(saved);
-        } catch (e) {
+        } catch {
           console.warn('Failed to parse saved project stats');
         }
       }
@@ -42,11 +41,6 @@ export default function ProjectOverview() {
   });
   const [fileTrackingData, setFileTrackingData] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  // Load file tracking data
-  useEffect(() => {
-    loadFileTrackingData();
-  }, []);
 
   const loadFileTrackingData = async () => {
     try {
@@ -168,6 +162,11 @@ export default function ProjectOverview() {
       rect.right <= (window.innerWidth || document.documentElement.clientWidth)
     );
   };
+
+  // Load file tracking data
+  useEffect(() => {
+    loadFileTrackingData();
+  }, []);
 
   // Scroll event listener to reveal sections
   useEffect(() => {
@@ -542,7 +541,7 @@ export default function ProjectOverview() {
                       transition={{ type: "spring", stiffness: 300 }}
                     >
                       <div className="text-2xl font-bold text-purple-600">{projectStats.todayUploads}</div>
-                      <div className="text-sm text-purple-700">Today's Uploads</div>
+                      <div className="text-sm text-purple-700">Today&apos;s Uploads</div>
                       <div className="text-xs text-purple-500 mt-1">Last 24h</div>
                     </motion.div>
                     

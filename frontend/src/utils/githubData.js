@@ -332,7 +332,7 @@ export class SummaryCacheManager {
         totalSize: `${Math.round(totalSize / 1024)}KB`,
         oldestCache: files.length > 0 ? Math.min(...files.map(f => cache[f].timestamp)) : null
       }
-    } catch (error) {
+    } catch {
       return { cachedFiles: 0, totalSize: '0KB', oldestCache: null }
     }
   }

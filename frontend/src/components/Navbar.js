@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import AccessibilityMenu from './AccessibilityMenu';
@@ -24,7 +25,7 @@ export default function Navbar() {
           <div className="flex items-center space-x-2">
             {/* Logo section */}
             <div className="w-10 h-10 rounded-lg overflow-hidden">
-              <img
+              <Image
                 src="/images/logo.jpg"
                 alt="DyslexoFly Logo"
                 className="w-full h-full object-cover"

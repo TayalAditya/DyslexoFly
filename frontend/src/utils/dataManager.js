@@ -307,7 +307,7 @@ class DataManager {
         if (key.startsWith(this.storageKey) || key === this.lastUpdateKey) {
           try {
             allData[key] = JSON.parse(localStorage.getItem(key))
-          } catch (error) {
+          } catch {
             allData[key] = localStorage.getItem(key)
           }
         }
