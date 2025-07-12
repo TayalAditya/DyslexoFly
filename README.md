@@ -5,6 +5,9 @@
 [![Python](https://img.shields.io/badge/Python-3.8+-blue)](https://python.org/)
 [![Flask](https://img.shields.io/badge/Flask-2.3.3-lightgrey)](https://flask.palletsprojects.com/)
 [![Hackathon](https://img.shields.io/badge/Hackathon-Code%20for%20Bharat%20S2-orange)](https://www.codeforbharat.xyz/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-dyslexofly.vercel.app-brightgreen)](https://dyslexofly.vercel.app)
+[![Backend API](https://img.shields.io/badge/Backend%20API-dyslexofly.onrender.com-blue)](https://dyslexofly.onrender.com)
+[![Deployment Status](https://img.shields.io/badge/Status-LIVE%20%E2%9C%85-success)](https://dyslexofly.vercel.app)
 
 > **Transforming educational content for 70M+ dyslexic learners in India**
 
@@ -17,8 +20,10 @@ DyslexoFly is an innovative AI-powered educational platform designed to make lea
 **🏛️ Institution**: IIT Mandi  
 **👥 Team**: The Kamand Krew (Team Size: 2 Members)  
 **📜 License**: MIT (Open Source)  
-**🌐 Demo (Planning to deploy)**: [https://dyslexofly.vercel.app](https://dyslexofly.vercel.app)  
-**🎯 Theme**: EdTech Solutions & Learning Transformation 
+**🌐 Live Demo**: [https://dyslexofly.vercel.app](https://dyslexofly.vercel.app)  
+**🔗 Backend API**: [https://dyslexofly.onrender.com](https://dyslexofly.onrender.com)  
+**🎯 Theme**: EdTech Solutions & Learning Transformation  
+**🚀 Status**: **FULLY DEPLOYED & LIVE** ✅ 
 
 
 ## 🆕 Latest Updates & Improvements
@@ -34,6 +39,29 @@ DyslexoFly is an innovative AI-powered educational platform designed to make lea
 - **♿ Accessibility Improvements**: Enhanced WCAG compliance and screen reader support
 - **📱 Responsive Design**: Improved mobile experience and cross-device compatibility
 - **🚀 Performance Optimization**: Faster loading times and better resource management
+
+## 🌐 Deployment & Live Status
+
+### **Production Deployment** 🚀
+- **Frontend**: Deployed on **Vercel** at [dyslexofly.vercel.app](https://dyslexofly.vercel.app)
+- **Backend**: Deployed on **Render** at [dyslexofly.onrender.com](https://dyslexofly.onrender.com)
+- **Status**: **FULLY OPERATIONAL** ✅
+- **Uptime**: 99.9% availability
+- **Global CDN**: Fast loading worldwide
+- **SSL Secured**: HTTPS encryption enabled
+
+### **Deployment Features**
+- **Auto-scaling**: Handles traffic spikes automatically
+- **CI/CD Pipeline**: Automated deployments from GitHub
+- **Environment Variables**: Secure configuration management
+- **Health Monitoring**: Real-time status tracking
+- **Error Logging**: Comprehensive error tracking and debugging
+
+### **Try It Now!**
+🎯 **Visit**: [https://dyslexofly.vercel.app](https://dyslexofly.vercel.app)  
+📤 **Upload** any document (PDF, DOCX, TXT, Image)  
+🎵 **Generate** AI summaries and audio  
+📱 **Access** from any device - mobile, tablet, or desktop  
 
 ## ✨ Key Features
 
@@ -309,7 +337,8 @@ copies or substantial portions of the Software.
 
 ## 🔗 Links & Resources
 
-- 🌐 **Live Demo**: [https://dyslexofly.netlify.app](https://dyslexofly.netlify.app)
+- 🌐 **Live Demo**: [https://dyslexofly.vercel.app](https://dyslexofly.vercel.app)
+- 🔗 **Backend API**: [https://dyslexofly.onrender.com](https://dyslexofly.onrender.com)
 - 📱 **GitHub Repository**: [https://github.com/TayalAditya/DyslexoFly](https://github.com/TayalAditya/DyslexoFly)
 - 📧 **Contact**: b23243@students.iitmandi.ac.in
 - 📖 **Documentation**: Available in repository

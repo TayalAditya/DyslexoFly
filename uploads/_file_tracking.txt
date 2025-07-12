@@ -148,3 +148,6 @@ LETS_SEE.pdf|C:\Users\AdityaTayal\Desktop\Projects\TKK\uploads\LETS_SEE.pdf|2025
 LETS_SEE.pdf|C:\Users\AdityaTayal\Desktop\Projects\TKK\uploads\LETS_SEE.pdf|2025-07-07 22:31:58.126600
 MDCSE_B1_Week01.pdf|C:\Users\AdityaTayal\Desktop\Projects\TKK\uploads\MDCSE_B1_Week01.pdf|2025-07-07 22:32:26.255149
 LETS_SEE.pdf|C:\Users\AdityaTayal\Desktop\Projects\TKK\uploads\LETS_SEE.pdf|2025-07-07 23:06:01.241866
+Resume-Aditya-Tayal.pdf|C:\Users\AdityaTayal\Desktop\Projects\TKK\uploads\Resume-Aditya-Tayal.pdf|2025-07-12 22:32:51.650175
+CFB2.pdf|C:\Users\AdityaTayal\Desktop\Projects\TKK\uploads\CFB2.pdf|2025-07-12 23:18:51.898361
+CFB2.pdf|C:\Users\AdityaTayal\Desktop\Projects\TKK\uploads\CFB2.pdf|2025-07-12 23:20:26.734631

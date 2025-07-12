@@ -66,10 +66,11 @@ export const generateDyslexoFlyPDF = async (fileId, textContent, summaries, audi
     
     lines.forEach(line => {
       doc.text(line, x, currentY);
-      // Add clickable link
+      // Add clickable link for each line
       const textWidth = doc.getTextWidth(line);
-      doc.link(x, currentY - fontSize, textWidth, fontSize, { url: url });
-      currentY += fontSize * 0.45;
+      const lineHeight = fontSize * 0.45;
+      doc.link(x, currentY - fontSize * 0.8, textWidth, lineHeight + 2, { url: url });
+      currentY += lineHeight;
     });
     
     return currentY + 3;
@@ -133,13 +134,15 @@ export const generateDyslexoFlyPDF = async (fileId, textContent, summaries, audi
   if (audioUrl) {
     // If we have an actual audio URL, use it
     const baseUrl = 'https://dyslexofly.onrender.com';
+    // Ensure audioUrl starts with / or is a complete URL
+    const fullAudioUrl = audioUrl.startsWith('http') ? audioUrl : `${baseUrl}${audioUrl.startsWith('/') ? audioUrl : '/' + audioUrl}`;
     leftY = addText('Generated Audio File:', leftColumn + 5, leftY, columnWidth - 10, 9, colors.dark, 'bold');
-    leftY = addText(`${baseUrl}${audioUrl}`, leftColumn + 5, leftY, columnWidth - 10, 7, colors.primary);
+    leftY = addClickableLink(fullAudioUrl, fullAudioUrl, leftColumn + 5, leftY, columnWidth - 10, 7);
     leftY = addText('Full text content in audio format', leftColumn + 5, leftY, columnWidth - 10, 7, colors.medium, 'italic');
   } else {
     // Fallback to pattern-based URLs
     leftY = addText('Audio files available at:', leftColumn + 5, leftY, columnWidth - 10, 9, colors.dark, 'bold');
-    const baseUrl = 'https://dyslexofly.onrender.com/api/audio/';
+    const baseUrl = 'http://127.0.0.1:10000/api/audio/';
     const filePattern = fileId.replace('.', '_');
     
     const audioLinks = [
