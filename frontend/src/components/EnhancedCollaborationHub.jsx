@@ -47,14 +47,14 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
     },
     {
       title: "Performance Optimization",
-      date: "Jul 4, 2025",
+      date: "Jul 6, 2025",
       status: "completed",
       description: "Speed improvements and scalability enhancements",
       icon: "⚡"
     },
     {
       title: "Competition Preparation",
-      date: "Jul 6, 2025",
+      date: "Jul 10, 2025",
       status: "completed",
       description: "Final testing, documentation, and presentation prep",
       icon: "🏆"
