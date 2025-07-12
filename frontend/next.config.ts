@@ -14,13 +14,19 @@ const nextConfig: NextConfig = {
     dirs: ['src']
   },
   images: {
-    domains: ['avatars.githubusercontent.com'],
+    domains: ['avatars.githubusercontent.com', 'dyslexofly.onrender.com'],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'avatars.githubusercontent.com',
         port: '',
         pathname: '/u/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'dyslexofly.onrender.com',
+        port: '',
+        pathname: '/api/**',
       },
     ],
   }
