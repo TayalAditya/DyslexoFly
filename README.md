@@ -15,8 +15,7 @@ DyslexoFly is an innovative AI-powered educational platform designed to make lea
 
 ## 🎯 Project Information
 
-**🏆 Hackathon**: Code for Bharat Season 2  
-**📅 Duration**: June 20, 2025 - July 3, 2025 (14 days)  
+**🏆 Hackathon**: Code for Bharat Season 2
 **🏛️ Institution**: IIT Mandi  
 **👥 Team**: The Kamand Krew (Team Size: 2 Members)  
 **📜 License**: MIT (Open Source)  
