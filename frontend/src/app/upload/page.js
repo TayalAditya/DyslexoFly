@@ -81,8 +81,7 @@ export default function Upload() {
     setIsUploading(true);
     setError("");
     setFileSize(file.size);
-    
-    // Calculate estimated time based on file size
+
     const estimatedSeconds = Math.max(20, Math.min(60, Math.floor(file.size / (1024 * 1024)) * 8));
     setEstimatedTime(`${Math.floor(estimatedSeconds / 60)}:${(estimatedSeconds % 60).toString().padStart(2, '0')}`);
 
@@ -172,7 +171,6 @@ export default function Upload() {
     { ext: 'TXT', description: 'Plain Text Files' },
   ]
 
-  // Demo documents for users to try
   const demoDocuments = [
     { 
       id: 'science-textbook.pdf', 

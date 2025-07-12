@@ -24,14 +24,13 @@ export default function EnhancedImpactDashboard({ isVisible, onClose }) {
 
     const loadRealData = async () => {
       try {
-        // Try to fetch real file tracking data
+
         const response = await fetch('https://dyslexofly.onrender.com/api/file-tracking')
         if (response.ok) {
           const result = await response.json()
           const trackingData = result.data || ''
           const lines = trackingData.split('\n').filter(line => line.trim())
-          
-          // Calculate real stats from tracking data
+
           const documentsProcessed = lines.length
           const audioGenerated = documentsProcessed * 3.2 // Average audio per document
           const summariesCreated = documentsProcessed * 3 // 3 summary types per document
@@ -48,7 +47,7 @@ export default function EnhancedImpactDashboard({ isVisible, onClose }) {
             accuracyRate: 97.8
           })
         } else {
-          // Fallback to demo data if API fails
+
           setStats({
             documentsProcessed: 47,
             audioGenerated: 142,

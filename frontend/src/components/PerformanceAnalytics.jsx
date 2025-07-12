@@ -18,7 +18,7 @@ export default function PerformanceAnalytics({ fileId, processingData }) {
 
   useEffect(() => {
     if (processingData) {
-      // Calculate metrics from processing data
+
       const totalWords = processingData.textContent?.split(' ').length || 0
       const processingTime = processingData.endTime - processingData.startTime
       

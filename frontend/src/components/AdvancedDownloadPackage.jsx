@@ -23,8 +23,7 @@ export default function AdvancedDownloadPackage({
   const [isGenerating, setIsGenerating] = useState(false)
   const [downloadProgress, setDownloadProgress] = useState(0)
   const [downloadStatus, setDownloadStatus] = useState('')
-  
-  // Get summaries from multiple sources with proper fallback
+
   const globalState = getGlobalSummaryState();
   const actualSummaries = propSummaries || globalState.summaries?.[fileId] || {};
   const summaries = actualSummaries; // Use this for the component
@@ -35,7 +34,7 @@ export default function AdvancedDownloadPackage({
 
     try {
       const zip = new JSZip()
-        // Get summaries from multiple sources
+
       const globalState = getGlobalSummaryState();
       const actualSummaries = propSummaries || globalState.summaries?.[fileId] || {};
       

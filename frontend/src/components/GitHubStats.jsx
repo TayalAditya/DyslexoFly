@@ -12,8 +12,7 @@ export default function GitHubStats() {
     const fetchGitHubData = async () => {
       try {
         setLoading(true)
-        
-        // Fetch repository data
+
         const repoResponse = await fetch('https://api.github.com/repos/TayalAditya/DyslexoFly')
         
         if (!repoResponse.ok) {
@@ -50,7 +49,7 @@ export default function GitHubStats() {
       } catch (err) {
         console.error('Error fetching GitHub data:', err)
         setError(err.message)
-        // Fallback data
+
         setRepoData({
           stars: 0,
           forks: 0,

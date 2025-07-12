@@ -1,7 +1,7 @@
 from PyPDF2 import PdfReader
 from docx import Document
 import os
-import magic  # Added for file type detection
+import magic
 import re
 
 def extract_text_from_pdf(file_path):
@@ -31,12 +31,10 @@ def extract_text_from_docx(file_path):
         doc = Document(file_path)
         text = []
         
-        # Paragraphs
         for para in doc.paragraphs:
             if para.text.strip():
                 text.append(para.text)
         
-        # Tables
         for table in doc.tables:
             for row in table.rows:
                 for cell in row.cells:
@@ -44,7 +42,6 @@ def extract_text_from_docx(file_path):
                         if paragraph.text.strip():
                             text.append(paragraph.text)
         
-        # Headers/Footers
         for section in doc.sections:
             for header in section.header.paragraphs:
                 if header.text.strip():
@@ -61,24 +58,19 @@ def extract_text_from_docx(file_path):
 def extract_text(file_path):
     """Enhanced text extraction with time estimation"""
     try:
-        # Verify actual file type
         file_type = magic.from_file(file_path, mime=True)
         _, extension = os.path.splitext(file_path)
         extension = extension.lower()
         
-        # Handle based on actual type
         if 'pdf' in file_type or extension == '.pdf':
             return extract_text_from_pdf(file_path)
-              elif 'document' in file_type or extension in ['.docx', '.doc']:
+        elif 'document' in file_type or extension in ['.docx', '.doc']:
             return extract_text_from_docx(file_path)
-            
         elif 'text' in file_type or extension == '.txt':
             with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
                 return f.read()
-                
         elif 'image' in file_type or extension in ['.png', '.jpg', '.jpeg']:
             return "Error: Image files (PNG/JPEG) require OCR processing which is not currently supported. Please convert your image to text using an online OCR tool, or upload a text-based PDF, DOCX, or TXT file instead."
-            
         else:
             return "Error: Unsupported file format. Please upload PDF, DOCX, or TXT files."
             
@@ -93,13 +85,12 @@ def estimate_processing_time(text_content):
     
     word_count = len(text_content.split())
     
-    # Base time estimates (in seconds)
     base_time = 5
-    word_processing_time = word_count * 0.02  # 0.02 seconds per word
-    ai_processing_time = min(30, word_count * 0.05)  # AI processing, capped at 30s
+    word_processing_time = word_count * 0.02
+    ai_processing_time = min(30, word_count * 0.05)
     
     total_time = base_time + word_processing_time + ai_processing_time
-    return max(10, min(60, int(total_time)))  # Between 10-60 seconds
+    return max(10, min(60, int(total_time)))
 
 def get_text_statistics(text_content):
     """Get comprehensive text statistics"""
@@ -115,5 +106,5 @@ def get_text_statistics(text_content):
         'sentence_count': len([s for s in sentences if s.strip()]),
         'paragraph_count': len([p for p in paragraphs if p.strip()]),
         'character_count': len(text_content),
-        'estimated_reading_time': max(1, len(words) // 200)  # 200 words per minute
+        'estimated_reading_time': max(1, len(words) // 200)
     }

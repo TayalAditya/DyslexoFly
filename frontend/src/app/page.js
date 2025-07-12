@@ -12,8 +12,7 @@ export default function Home() {
   const [showLicensePopup, setShowLicensePopup] = useState(false)
   const router = useRouter()
 
-  // Demo documents with pre-generated summaries
-  const demoDocuments = {
+    const demoDocuments = {
     'Science_Textbook_Chapter': {
       title: 'Science Textbook',
       subtitle: 'Water Cycle Concepts',
@@ -59,11 +58,11 @@ export default function Home() {
   }
 
 const handleDemoClick = async (demoId) => {
-    // Create a mapping between demo IDs and file IDs
+
     const demoToFileId = {
       'Science_Textbook_Chapter': 'science-textbook.pdf',
       'History_Essay': 'history-essay.pdf',
-      'Short_Story_Excerpt': 'science-textbook.pdf' // Note: This shows 'science-textbook.pdf' but the correct one should be 'story-excerpt.pdf'
+      'Short_Story_Excerpt': 'science-textbook.pdf'
     }
 
     // Get the correct file ID for this demo
@@ -91,7 +90,7 @@ const handleDemoClick = async (demoId) => {
   }
 
   useEffect(() => {
-    // Check if user has seen license popup today
+
     const today = new Date().toDateString()
     const lastShown = localStorage.getItem('dyslexofly-license-shown')
     
@@ -312,7 +311,7 @@ const handleDemoClick = async (demoId) => {
         </div>
       </div>
 
-      {/* Demo Documents Section */}
+      {}
       <div className="py-16 bg-gradient-to-r from-gray-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">

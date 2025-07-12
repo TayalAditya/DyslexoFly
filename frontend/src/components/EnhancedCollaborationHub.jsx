@@ -16,8 +16,7 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // Hardcoded data for milestones and tech stack
-  const projectMilestones = [
+    const projectMilestones = [
     {
       title: "Project Inception",
       date: "Jun 20, 2025",
@@ -113,7 +112,6 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
     { name: "OpenCV", category: "Vision", icon: "👁️", proficiency: 80 }
   ]
 
-  // Realistic fallback data based on actual project estimates
   const realisticFallbackData = {
     teamStats: {
       totalCommits: 22,
@@ -223,8 +221,7 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
       try {
         setIsLoading(true)
 
-        // First try to fetch all data we need
-        const [repoResponse, commitsResponse, contributorsResponse, issuesResponse] = await Promise.all([
+                const [repoResponse, commitsResponse, contributorsResponse, issuesResponse] = await Promise.all([
           fetch('https://api.github.com/repos/TayalAditya/DyslexoFly'),
           fetch('https://api.github.com/repos/TayalAditya/DyslexoFly/commits?per_page=100'),
           fetch('https://api.github.com/repos/TayalAditya/DyslexoFly/contributors'),
@@ -241,7 +238,6 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
           const contributorsData = contributorsResponse.ok ? await contributorsResponse.json() : []
           const issuesData = issuesResponse.ok ? await issuesResponse.json() : []
 
-          // Use whatever we got to create realistic data
           handlePartialData(repoData, commitsData, contributorsData, issuesData)
           return
         }
@@ -274,7 +270,7 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
       } catch (err) {
         console.error("Error fetching GitHub data:", err)
         setError(`Failed to load GitHub data: ${err.message}. Using simulated data instead.`)
-        // Use our realistic fallback data
+
         setTeamStats(realisticFallbackData.teamStats)
         setTeamMembers(realisticFallbackData.teamMembers)
         setCommitActivity(realisticFallbackData.commitActivity)
@@ -283,10 +279,9 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
     }
 
     const handlePartialData = (repoData, commitsData, contributorsData, issuesData) => {
-      // Calculate basic stats from what we have
+
       const totalCommits = commitsData.length || realisticFallbackData.teamStats.totalCommits
 
-      // Estimate lines of code based on commits (average commit affects ~300 lines)
       const estimatedLines = totalCommits * 300
       const estimatedFiles = totalCommits * 3 // ~3 files per commit
       const resolvedIssues = issuesData.filter(issue => issue.state === 'closed').length || 0
@@ -311,7 +306,6 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
         const processedCommits = commitsData.slice(0, 10).map(commit => {
           const message = commit.commit.message.split('\n')[0]
 
-          // Estimate stats based on commit message
           let additions, deletions, files
 
           if (message.toLowerCase().includes('fix') || message.toLowerCase().includes('bug')) {
@@ -397,7 +391,6 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
       // Calculate stats
       const totalCommits = commitsData.length
 
-      // Calculate from detailed commits
       let totalFilesChanged = 0
       let totalLinesAdded = 0
       let totalLinesDeleted = 0
@@ -454,7 +447,6 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
         "adityatayal": "Aditya Tayal"
       }
 
-      // Get hardcoded members
       const hardcodedMembers = [
         {
           name: "Aditya Tayal",
@@ -499,16 +491,13 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
       // Process each canonical contributor
       Object.keys(consolidatedCommits).forEach(canonicalName => {
         const userCommits = consolidatedCommits[canonicalName]
-        
-        // Find matching hardcoded member
+
         const hardcodedMember = hardcodedMembers.find(m => m.name === canonicalName)
-        
-        // Get recent work from commit messages
+
         const recentWork = userCommits.slice(0, 4).map(commit =>
           commit.commit.message.split('\n')[0]
         )
 
-        // Calculate contribution stats from all commits for this canonical user
         let totalAdditions = 0
         let totalDeletions = 0
         let totalFilesChanged = 0
@@ -557,7 +546,7 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
         }
 
         if (commitsWithDetails > 0) {
-          // Calculate averages from commits we have details for this user
+
           const commitsWithDetailsForUser = commitDetails.filter(c => {
             const commitAuthor = c.author ? c.author.login : c.commit.author.name
             const commitCanonicalName = contributorMapping[commitAuthor] || commitAuthor
@@ -627,7 +616,7 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
       // Ensure we have both main contributors even if not found in GitHub data
       hardcodedMembers.forEach(hardcoded => {
         if (!processedMembers.some(m => m.name === hardcoded.name)) {
-          // Use realistic contributions based on the provided data
+
           const estimatedContributions = {
             commits: hardcoded.name === "Aditya Tayal" ? 17 : 5,
             linesAdded: hardcoded.name === "Aditya Tayal" ? 28943 : 2282,
@@ -663,7 +652,7 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
     }
 
     const getEstimatedCommitDetails = (commit) => {
-      // Create estimated commit details based on commit message
+
       const message = commit.commit.message.toLowerCase()
       let additions, deletions, files
 
@@ -704,7 +693,7 @@ export default function EnhancedCollaborationHub({ isVisible, onClose }) {
     fetchGitHubData()
 
     // Optional: Set up polling if we want periodic updates
-    const interval = setInterval(fetchGitHubData, 300000) // Every 5 minutes
+    const interval = setInterval(fetchGitHubData, 300000)
     return () => clearInterval(interval)
   }, [isVisible])
 

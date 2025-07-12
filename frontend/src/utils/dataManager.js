@@ -1,13 +1,9 @@
-// Data persistence utility for DyslexoFly
-// Manages local storage and provides fallback data
-
 class DataManager {
   constructor() {
     this.storageKey = 'dyslexofly-data'
     this.lastUpdateKey = 'dyslexofly-last-update'
   }
 
-  // Save data to localStorage
   saveData(key, data) {
     if (typeof window !== 'undefined') {
       try {
@@ -27,7 +23,6 @@ class DataManager {
     return false
   }
 
-  // Load data from localStorage
   loadData(key) {
     if (typeof window !== 'undefined') {
       try {
@@ -42,7 +37,6 @@ class DataManager {
     return null
   }
 
-  // Get last update timestamp
   getLastUpdate() {
     if (typeof window !== 'undefined') {
       try {
@@ -55,7 +49,6 @@ class DataManager {
     return null
   }
 
-  // Clear all stored data
   clearAllData() {
     if (typeof window !== 'undefined') {
       try {
@@ -72,14 +65,12 @@ class DataManager {
     return false
   }
 
-  // Get realistic project stats with persistence
   getProjectStats() {
     const saved = this.loadData('project-stats')
-    if (saved && this.isDataFresh(saved.lastUpdated, 24)) { // 24 hours
+    if (saved && this.isDataFresh(saved.lastUpdated, 24)) {
       return saved
     }
 
-    // Generate new realistic data
     const now = new Date()
     const stats = {
       totalUploads: this.getIncrementalValue('totalUploads', 45, 2),
@@ -95,10 +86,9 @@ class DataManager {
     return stats
   }
 
-  // Get team collaboration data
   getTeamData() {
     const saved = this.loadData('team-data')
-    if (saved && this.isDataFresh(saved.lastUpdated, 12)) { // 12 hours
+    if (saved && this.isDataFresh(saved.lastUpdated, 12)) {
       return saved
     }
 
@@ -158,10 +148,9 @@ class DataManager {
     return teamData
   }
 
-  // Get commit activity with realistic progression
   getCommitActivity() {
     const saved = this.loadData('commit-activity')
-    if (saved && this.isDataFresh(saved.lastUpdated, 6)) { // 6 hours
+    if (saved && this.isDataFresh(saved.lastUpdated, 6)) {
       return saved
     }
 
@@ -178,7 +167,7 @@ class DataManager {
     for (let i = 0; i < 10; i++) {
       const author = authors[Math.floor(Math.random() * authors.length)]
       const commitType = this.weightedRandom(commitTypes)
-      const timeAgo = (i + 1) * 3600000 + Math.random() * 1800000 // 1-2 hours apart
+      const timeAgo = (i + 1) * 3600000 + Math.random() * 1800000
       
       commits.push({
         id: `commit-${Date.now()}-${i}`,
@@ -200,7 +189,6 @@ class DataManager {
     return activityData
   }
 
-  // Helper methods
   isDataFresh(timestamp, hoursThreshold) {
     if (!timestamp) return false
     const now = new Date()
@@ -219,7 +207,6 @@ class DataManager {
 
     let newValue = baseValue
     if (saved) {
-      // Increment from last saved value
       const increment = Math.floor(Math.random() * incrementRange) + 1
       newValue = saved.value + increment
     }
@@ -234,14 +221,14 @@ class DataManager {
 
   getRealisticProcessingTime() {
     const baseTime = 3.5
-    const variation = (Math.random() - 0.5) * 2 // -1 to 1
+    const variation = (Math.random() - 0.5) * 2
     const time = Math.max(1.5, baseTime + variation)
     return `${time.toFixed(1)}s`
   }
 
   getRealisticSuccessRate() {
     const baseRate = 96.8
-    const variation = (Math.random() - 0.5) * 4 // -2 to 2
+    const variation = (Math.random() - 0.5) * 4
     const rate = Math.max(90, Math.min(100, baseRate + variation))
     return `${rate.toFixed(1)}%`
   }
@@ -255,7 +242,7 @@ class DataManager {
       if (random <= 0) return item
     }
     
-    return items[0] // fallback
+    return items[0]
   }
 
   generateRealisticCommitMessage(prefix) {
@@ -312,7 +299,6 @@ class DataManager {
     return `${prefix} ${message}`
   }
 
-  // Export all data for backup
   exportAllData() {
     const allData = {}
     
@@ -334,7 +320,6 @@ class DataManager {
     }
   }
 
-  // Import data from backup
   importData(exportedData) {
     if (!exportedData || !exportedData.data) return false
 
@@ -354,7 +339,6 @@ class DataManager {
   }
 }
 
-// Create singleton instance
 const dataManager = new DataManager()
 
 export default dataManager

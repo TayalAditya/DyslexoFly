@@ -12,28 +12,24 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
   const [isSearchActive, setIsSearchActive] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState([])
-  const [currentSearchIndex, setCurrentSearchIndex] = useState(0)
-  const [textSize, setTextSize] = useState(100) // percentage of base size
+  const [currentSearchIndex, setCurrentSearchIndex] = useState(0)  
+  const [textSize, setTextSize] = useState(100)
   const [loading, setLoading] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [speakError, setSpeakError] = useState(null)
   const [lineSpacing, setLineSpacing] = useState(1.7)
   const [speakingWordIndex, setSpeakingWordIndex] = useState(null)
-
-  // New state variables
   const [currentLineIndex, setCurrentLineIndex] = useState(null)
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 25 })
   const [totalLines, setTotalLines] = useState(0)
-  const [linesPerPage, setLinesPerPage] = useState(25); // <-- New state variable
-  const [useDyslexicFont, setUseDyslexicFont] = useState(true); // <-- Dyslexic font state
+  const [linesPerPage, setLinesPerPage] = useState(25)
+  const [useDyslexicFont, setUseDyslexicFont] = useState(true)
 
-  // Process text content into structured format with better error handling
   useEffect(() => {
     if (content) {
       setLoading(true)
       
       try {
-        // Process content in next tick to avoid blocking UI
         setTimeout(() => {
           const paragraphs = content
             .split(/\r?\n+/)
@@ -52,14 +48,12 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
     }
   }, [content])
 
-  // Word tracking with performance optimizations
   const handleWordTracking = useCallback(() => {
     if (currentPlayingIndex >= 0 && contentRef.current) {
       const wordElems = contentRef.current.querySelectorAll('.word')
       if (wordElems[currentPlayingIndex]) {
         const activeWord = wordElems[currentPlayingIndex]
         
-        // Get position for floating highlight
         const rect = activeWord.getBoundingClientRect()
         
         setActiveWordPosition({
@@ -69,7 +63,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
           height: rect.height
         })
         
-        // Smooth scroll with requestAnimationFrame for better performance
         requestAnimationFrame(() => {
           activeWord.scrollIntoView({
             behavior: 'smooth',
@@ -77,7 +70,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
           })
         })
         
-        // Only update classes on affected elements
         const prevActive = contentRef.current.querySelector('.active-word')
         if (prevActive && prevActive !== activeWord) {
           prevActive.classList.remove('active-word')
@@ -91,7 +83,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
     handleWordTracking()
   }, [handleWordTracking])
   
-  // Enhanced text search functionality
   const handleSearch = useCallback(() => {
     if (!searchQuery.trim() || !content) {
       setSearchResults([])
@@ -110,24 +101,20 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
     
     setSearchResults(matches)
     
-    // Highlight first result if there are any
     if (matches.length > 0 && onSelectText) {
       onSelectText(matches[0])
       setCurrentSearchIndex(0)
     }
   }, [searchQuery, content, onSelectText])
 
-  // Handle text zoom
   const changeTextSize = (delta) => {
     setTextSize(prev => Math.min(200, Math.max(50, prev + delta)))
   }
   
-  // Handle line spacing
   const changeLineSpacing = (delta) => {
     setLineSpacing(prev => Math.min(3, Math.max(1, prev + delta)))
   }
   
-  // Improved speech synthesis with proper error handling
   const speakSelectedText = () => {
     if (!window.speechSynthesis) {
       setSpeakError("Your browser doesn't support speech synthesis")
@@ -138,12 +125,11 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
     const selection = window.getSelection()
     if (selection && selection.toString()) {
       try {
-        // Cancel any ongoing speech
         if (speechSynthesis.speaking) {
           speechSynthesis.cancel()
           setIsSpeaking(false)
           setSpeakingWordIndex(null)
-          setTimeout(() => performSpeech(selection.toString()), 100) // Brief delay before starting new speech
+          setTimeout(() => performSpeech(selection.toString()), 100)
         } else {
           performSpeech(selection.toString())
         }
@@ -161,19 +147,16 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
   const performSpeech = (text) => {
     const utterance = new SpeechSynthesisUtterance(text)
     
-    // Improve speech quality and settings
-    utterance.rate = 0.9 // Slightly slower than default
+    utterance.rate = 0.9
     utterance.pitch = 1.0
     utterance.volume = 1.0
     
-    // Get available voices and select a good one if available
     const voices = speechSynthesis.getVoices()
     const englishVoices = voices.filter(voice => voice.lang.includes('en'))
     if (englishVoices.length > 0) {
       utterance.voice = englishVoices[0]
     }
     
-    // Add event handlers for speech feedback
     utterance.onstart = () => setIsSpeaking(true)
     utterance.onend = () => setIsSpeaking(false)
     utterance.onerror = () => {
@@ -185,7 +168,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
     speechSynthesis.speak(utterance)
   }
 
-  // Add new function to speak individual words
   const speakWord = (word, index) => {
     if (!window.speechSynthesis) {
       setSpeakError("Your browser doesn't support speech synthesis")
@@ -194,12 +176,10 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
     }
     
     try {
-      // Cancel any ongoing speech
       if (speechSynthesis.speaking) {
         speechSynthesis.cancel()
         setIsSpeaking(false)
         setSpeakingWordIndex(null)
-        // Brief delay before starting new speech
         setTimeout(() => performWordSpeech(word, index), 100)
       } else {
         performWordSpeech(word, index)
@@ -215,19 +195,16 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
     setSpeakingWordIndex(index)
     const utterance = new SpeechSynthesisUtterance(word)
     
-    // Configure speech settings
     utterance.rate = 0.9
     utterance.pitch = 1.1
     utterance.volume = 1.0
     
-    // Get available voices and select a good one
     const voices = speechSynthesis.getVoices()
     const englishVoices = voices.filter(voice => voice.lang.includes('en'))
     if (englishVoices.length > 0) {
       utterance.voice = englishVoices[0]
     }
     
-    // Add event handlers
     utterance.onstart = () => setIsSpeaking(true)
     utterance.onend = () => {
       setIsSpeaking(false)
@@ -243,7 +220,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
     speechSynthesis.speak(utterance)
   }
 
-  // Add a function to speak an entire line
   const speakLine = (paragraph, lineIndex) => {
     if (!window.speechSynthesis) {
       setSpeakError("Your browser doesn't support speech synthesis")
@@ -252,17 +228,14 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
     }
     
     try {
-      // Cancel any ongoing speech
       if (speechSynthesis.speaking) {
         speechSynthesis.cancel()
         setIsSpeaking(false)
         setSpeakingWordIndex(null)
       }
       
-      // Set the current line being spoken
       setCurrentLineIndex(lineIndex)
       
-      // Join the paragraph array back into text
       const lineText = paragraph.join(' ')
       
       const utterance = new SpeechSynthesisUtterance(lineText)
@@ -270,14 +243,12 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
       utterance.pitch = 1.0
       utterance.volume = 1.0
       
-      // Get available voices and select a good one if available
       const voices = speechSynthesis.getVoices()
       const englishVoices = voices.filter(voice => voice.lang.includes('en'))
       if (englishVoices.length > 0) {
         utterance.voice = englishVoices[0]
       }
       
-      // Add event handlers for speech feedback
       utterance.onstart = () => setIsSpeaking(true)
       utterance.onend = () => {
         setIsSpeaking(false)
@@ -299,14 +270,12 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
     }
   }
 
-  // After structuredContent is set, update total lines
   useEffect(() => {
     if (structuredContent.length) {
       setTotalLines(structuredContent.length)
     }
   }, [structuredContent])
 
-  // Add navigation controls for the 25-line view
   const handlePrevPage = () => {
     setVisibleRange(prev => ({
       start: Math.max(0, prev.start - linesPerPage),
@@ -321,17 +290,14 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
     }))
   }
 
-  // Add this function near your other control functions
   const changeLinesPerPage = (delta) => {
     setLinesPerPage(prev => Math.min(100, Math.max(10, prev + delta)));
-    // Update the visible range when changing lines per page
     setVisibleRange(prev => ({
       start: prev.start,
       end: prev.start + Math.min(100, Math.max(10, linesPerPage + delta))
     }));
   };
 
-  // Add this function to toggle font
   const toggleFont = () => {
     setUseDyslexicFont(prev => !prev);
   };
@@ -350,17 +316,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
     )
   }
 
-  // if (loading) {
-  //   return (
-  //     <div className="h-full flex items-center justify-center">
-  //       <div className="text-center">
-  //         <div className="loading-spinner mb-4"></div>
-  //         <p className="text-indigo-900">Loading content...</p>
-  //       </div>
-  //     </div>
-  //   )
-  // }
-
   return (
     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-xl p-5 h-full overflow-hidden border border-indigo-100 flex flex-col">
       <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
@@ -377,7 +332,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
         </motion.h2>
 
         <div className="flex flex-wrap gap-2">
-          {/* Text size controls */}
           <div className="flex shadow-sm rounded-lg overflow-hidden">
             <button 
               onClick={() => changeTextSize(-10)} 
@@ -400,7 +354,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
             </button>
           </div>
 
-          {/* Line spacing controls - NEW */}
           <div className="flex shadow-sm rounded-lg overflow-hidden">
             <button 
               onClick={() => changeLineSpacing(-0.1)} 
@@ -423,7 +376,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
             </button>
           </div>
 
-          {/* Lines per page controls */}
           <div className="flex shadow-sm rounded-lg overflow-hidden">
             <button 
               onClick={() => changeLinesPerPage(-5)} 
@@ -446,7 +398,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
             </button>
           </div>
 
-          {/* Font toggle button */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -464,7 +415,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
             {useDyslexicFont ? "Standard Font" : "Dyslexic Font"}
           </motion.button>
 
-          {/* Text to speech button with improved feedback */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -480,7 +430,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
             )}
           </motion.button>
 
-          {/* Search button */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -495,7 +444,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
             </svg>
           </motion.button>
 
-          {/* Standard buttons */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -532,7 +480,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
         </div>
       </div>
 
-      {/* Error notification for speech synthesis */}
       <AnimatePresence>
         {speakError && (
           <motion.div
@@ -549,7 +496,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
         )}
       </AnimatePresence>
 
-      {/* Search panel */}
       <AnimatePresence>
         {isSearchActive && (
           <motion.div 
@@ -605,7 +551,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
         )}
       </AnimatePresence>
 
-      {/* Add pagination controls */}
       {totalLines > linesPerPage && (
         <div className="mb-3 flex justify-between items-center bg-indigo-50 p-2 rounded-lg">
           <button 
@@ -639,7 +584,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
       <div className="relative flex-grow overflow-hidden">
         <div className="absolute left-0 w-full h-1 bg-gradient-to-r from-amber-300 to-yellow-400 top-1/2 transform -translate-y-1/2 z-10 opacity-20"></div>
         
-        {/* Main text content with pagination */}
         <div
           ref={contentRef}
           className="accessible-content h-full overflow-y-auto p-6 rounded-lg relative"
@@ -740,7 +684,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
               );
             })}
 
-          {/* Show indication if there are more lines */}
           {visibleRange.end < totalLines && (
             <div className="text-center py-3 text-sm text-indigo-500">
               Scroll down or click "Next" to see more content
@@ -751,7 +694,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
       
       <div className="w-full h-6 bg-gradient-to-t from-white/90 to-transparent pointer-events-none absolute bottom-0 left-0 right-0"></div>
       
-      {/* Selected text indicator at the bottom */}
       {window.getSelection()?.toString() && (
         <div className="bg-indigo-50 mt-2 py-1 px-2 rounded text-xs text-indigo-700 flex justify-between items-center">
           <span>Text selected: {window.getSelection().toString().slice(0, 30)}{window.getSelection().toString().length > 30 ? '...' : ''}</span>
@@ -803,14 +745,12 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
           border-radius: 4px;
         }
         
-        /* Added underline to help track words better */
         .word:hover {
           text-decoration: underline;
           text-decoration-thickness: 2px;
           text-decoration-color: rgba(99, 102, 241, 0.4);
         }
         
-        /* Improved contrast for better readability */
         .accessible-content {
           color: rgba(30, 41, 59, 0.95);
           text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
@@ -843,7 +783,6 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
           to { transform: rotate(360deg); }
         }
 
-        /* Make selection more visible */
         ::selection {
           background: rgba(79, 70, 229, 0.2);
           color: #1e293b;
@@ -851,16 +790,15 @@ const TextPane = memo(({ content, currentPlayingIndex = -1, onSelectText }) => {
         }
 
         .speaking-word {
-          color: #047857; /* Green-800 */
+          color: #047857;
           position: relative;
-          background: rgba(209, 250, 229, 0.4); /* Green-100 with transparency */
+          background: rgba(209, 250, 229, 0.4);
           border-radius: 4px;
           padding: 0 3px;
           box-shadow: 0 1px 2px rgba(0,0,0,0.05);
           font-weight: 600;
         }
         
-        /* Animation for speaking word */
         @keyframes pulse-border {
           0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
           70% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }

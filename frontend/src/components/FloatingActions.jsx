@@ -67,7 +67,7 @@ export default function FloatingActions() {
       setNotifications(prev => ({ ...prev, stats: true }))
     } catch (error) {
       console.warn('Failed to load project data:', error)
-      // Use fallback data
+
       setProjectData(githubData.getFallbackData('repoStats'))
     } finally {
       setLoading(false)

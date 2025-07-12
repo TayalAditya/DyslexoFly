@@ -12,7 +12,6 @@ export default function AccessibilityMenu() {
     lineSpacing, setLineSpacing
   } = useAccessibility()
 
-  // Close menu when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -28,7 +27,6 @@ export default function AccessibilityMenu() {
     }
   }, [isOpen])
 
-  // Close menu when any setting changes
   const handleSettingChange = (setter, value) => {
     setter(value)
     setIsOpen(false)

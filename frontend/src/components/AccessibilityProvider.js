@@ -20,7 +20,6 @@ export default function AccessibilityProvider({ children }) {
   const [fontSize, setFontSize] = useState('medium')
   const [lineSpacing, setLineSpacing] = useState('normal')
   
-  // Font size in pixels based on selection
   const fontSizeMap = {
     small: '16px',
     medium: '18px',
@@ -28,7 +27,6 @@ export default function AccessibilityProvider({ children }) {
     'x-large': '22px',
   }
   
-  // Line height based on selection
   const lineSpacingMap = {
     condensed: '1.3',
     normal: '1.5',
@@ -36,14 +34,12 @@ export default function AccessibilityProvider({ children }) {
     'extra-spaced': '2.0',
   }
   
-  // Apply settings to the document
   useEffect(() => {
     document.documentElement.style.setProperty('--font-family', fontFamily)
     document.documentElement.style.setProperty('--font-size', fontSizeMap[fontSize])
     document.documentElement.style.setProperty('--line-height', lineSpacingMap[lineSpacing])
   }, [fontFamily, fontSize, lineSpacing])
   
-  // Load settings from localStorage on mount
   useEffect(() => {
     try {
       const savedFont = localStorage.getItem('fontFamily')
@@ -58,7 +54,6 @@ export default function AccessibilityProvider({ children }) {
     }
   }, [])
   
-  // Save settings to localStorage when changed
   useEffect(() => {
     try {
       localStorage.setItem('fontFamily', fontFamily)

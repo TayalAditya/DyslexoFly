@@ -12,7 +12,6 @@ import DownloadPackage from '@/components/DownloadPackage';
 import AdvancedDownloadPackage from '@/components/AdvancedDownloadPackage';
 import ResultsFloatingButtons from '@/components/ResultsFloatingButtons';
 
-// Demo documents data with enhanced content for better testing
 const demoDocumentsData = {
   'science-textbook.pdf': {
     filename: 'Science Textbook Chapter.pdf',
@@ -151,7 +150,6 @@ function ResultsContent() {
 
   const accessibilitySettings = useAccessibility();
 
-  // Document loading logic with improved demo document handling
   useEffect(() => {
     const loadDocument = async () => {
       if (!fileId) return;
@@ -160,7 +158,7 @@ function ResultsContent() {
       setError(null);
 
       try {
-        // First try to find a demo document
+
         const demoDoc = findDemoDocument(fileId);
         if (demoDoc) {
           console.log("Loading demo document for fileId:", fileId);
@@ -196,7 +194,7 @@ function ResultsContent() {
 
       } catch (err) {
         console.error("Error loading document:", err);
-        // As a fallback, try to load a demo document
+
         const fallbackDemo = Object.values(demoDocumentsData)[0];
         if (fallbackDemo) {
           console.log("Loading fallback demo document");

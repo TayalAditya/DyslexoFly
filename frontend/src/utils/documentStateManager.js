@@ -1,144 +1,160 @@
-// Document state management utility
 export class DocumentStateManager {
-  static STORAGE_KEY = 'dyslexofly_documents'
-  static AUDIO_STORAGE_KEY = 'dyslexofly_audio_files'
+  static storageKey = 'dyslexofly-documents'
+  static audioStorageKey = 'dyslexofly-audio'
 
-  // Save document with summaries and audio URLs
   static saveDocument(fileId, documentData) {
     try {
-      const existing = this.getStoredDocuments()
-      existing[fileId] = {
+      const documents = this.getStoredDocuments()
+      documents[fileId] = {
         ...documentData,
-        timestamp: Date.now(),
-        lastAccessed: Date.now()
+        lastAccessed: Date.now(),
+        savedAt: Date.now()
       }
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(existing))
-      console.log(`Document ${fileId} saved to localStorage`)
+      localStorage.setItem(this.storageKey, JSON.stringify(documents))
+      return true
     } catch (error) {
-      console.error('Failed to save document:', error)
+      console.warn('Failed to save document:', error)
+      return false
     }
   }
 
-  // Get stored documents
   static getStoredDocuments() {
     try {
-      const stored = localStorage.getItem(this.STORAGE_KEY)
+      const stored = localStorage.getItem(this.storageKey)
       return stored ? JSON.parse(stored) : {}
     } catch (error) {
-      console.error('Failed to get stored documents:', error)
+      console.warn('Failed to get stored documents:', error)
       return {}
     }
   }
 
-  // Get specific document
   static getDocument(fileId) {
     const documents = this.getStoredDocuments()
     if (documents[fileId]) {
-      // Update last accessed
       documents[fileId].lastAccessed = Date.now()
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(documents))
+      localStorage.setItem(this.storageKey, JSON.stringify(documents))
       return documents[fileId]
     }
     return null
   }
 
-  // Save audio files for a document
   static saveAudioFiles(fileId, audioData) {
     try {
-      const existing = this.getStoredAudioFiles()
-      existing[fileId] = {
+      const audioFiles = this.getStoredAudioFiles()
+      audioFiles[fileId] = {
         ...audioData,
-        timestamp: Date.now()
+        savedAt: Date.now()
       }
-      localStorage.setItem(this.AUDIO_STORAGE_KEY, JSON.stringify(existing))
-      console.log(`Audio files for ${fileId} saved to localStorage`)
+      localStorage.setItem(this.audioStorageKey, JSON.stringify(audioFiles))
+      return true
     } catch (error) {
-      console.error('Failed to save audio files:', error)
+      console.warn('Failed to save audio files:', error)
+      return false
     }
   }
 
-  // Get stored audio files
   static getStoredAudioFiles() {
     try {
-      const stored = localStorage.getItem(this.AUDIO_STORAGE_KEY)
+      const stored = localStorage.getItem(this.audioStorageKey)
       return stored ? JSON.parse(stored) : {}
     } catch (error) {
-      console.error('Failed to get stored audio files:', error)
+      console.warn('Failed to get stored audio files:', error)
       return {}
     }
   }
 
-  // Get audio files for specific document
   static getAudioFiles(fileId) {
     const audioFiles = this.getStoredAudioFiles()
     return audioFiles[fileId] || null
   }
 
-  // Clean old documents (older than 7 days)
   static cleanOldDocuments() {
     try {
+      const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000)
       const documents = this.getStoredDocuments()
       const audioFiles = this.getStoredAudioFiles()
-      const now = Date.now()
-      const weekInMs = 7 * 24 * 60 * 60 * 1000
 
-      // Clean documents
       let cleaned = false
+
       Object.keys(documents).forEach(fileId => {
-        if (now - documents[fileId].timestamp > weekInMs) {
+        if (documents[fileId].savedAt < sevenDaysAgo) {
           delete documents[fileId]
           cleaned = true
         }
       })
 
-      // Clean audio files
       Object.keys(audioFiles).forEach(fileId => {
-        if (now - audioFiles[fileId].timestamp > weekInMs) {
+        if (audioFiles[fileId].savedAt < sevenDaysAgo) {
           delete audioFiles[fileId]
           cleaned = true
         }
       })
 
       if (cleaned) {
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(documents))
-        localStorage.setItem(this.AUDIO_STORAGE_KEY, JSON.stringify(audioFiles))
-        console.log('Cleaned old documents and audio files')
+        localStorage.setItem(this.storageKey, JSON.stringify(documents))
+        localStorage.setItem(this.audioStorageKey, JSON.stringify(audioFiles))
       }
+
+      return cleaned
     } catch (error) {
-      console.error('Failed to clean old documents:', error)
+      console.warn('Failed to clean old documents:', error)
+      return false
     }
   }
 
-  // Check if document has summaries
-  static documentHasSummaries(fileId) {
-    const doc = this.getDocument(fileId)
-    return doc && doc.summaries && Object.keys(doc.summaries).length > 0
-  }
-
-  // Check if document has audio
-  static documentHasAudio(fileId) {
-    const audio = this.getAudioFiles(fileId)
-    return audio && Object.keys(audio).length > 0
-  }
-
-  // Update document summaries
   static updateSummaries(fileId, summaries) {
-    const doc = this.getDocument(fileId)
-    if (doc) {
-      doc.summaries = { ...doc.summaries, ...summaries }
-      this.saveDocument(fileId, doc)
+    const document = this.getDocument(fileId)
+    if (document) {
+      document.summaries = summaries
+      document.lastAccessed = Date.now()
+      return this.saveDocument(fileId, document)
+    }
+    return false
+  }
+
+  static updateAudio(fileId, audioData) {
+    const document = this.getDocument(fileId)
+    if (document) {
+      document.audioUrls = audioData
+      document.lastAccessed = Date.now()
+      return this.saveDocument(fileId, document)
+    }
+    return false
+  }
+
+  static getAllDocuments() {
+    return Object.entries(this.getStoredDocuments()).map(([fileId, data]) => ({
+      fileId,
+      ...data
+    }))
+  }
+
+  static deleteDocument(fileId) {
+    try {
+      const documents = this.getStoredDocuments()
+      const audioFiles = this.getStoredAudioFiles()
+      
+      delete documents[fileId]
+      delete audioFiles[fileId]
+      
+      localStorage.setItem(this.storageKey, JSON.stringify(documents))
+      localStorage.setItem(this.audioStorageKey, JSON.stringify(audioFiles))
+      
+      return true
+    } catch (error) {
+      console.warn('Failed to delete document:', error)
+      return false
     }
   }
 
-  // Update document audio
-  static updateAudio(fileId, audioData) {
-    const existing = this.getAudioFiles(fileId) || {}
-    const updated = { ...existing, ...audioData }
-    this.saveAudioFiles(fileId, updated)
+  static clearAllDocuments() {
+    try {
+      localStorage.removeItem(this.storageKey)
+      localStorage.removeItem(this.audioStorageKey)
+      return true
+    } catch (error) {
+      console.warn('Failed to clear all documents:', error)
+      return false
+    }
   }
-}
-
-// Auto-cleanup on page load
-if (typeof window !== 'undefined') {
-  DocumentStateManager.cleanOldDocuments()
 }

@@ -19,7 +19,6 @@ if (typeof window !== 'undefined') {
 // Single source of truth for file checks
 const checkedFiles = {};
 
-// Function to clear all caches and reset state
 const clearAllCaches = () => {
   // Clear summary cache
   summaryCache.clearAllCache();
@@ -56,7 +55,6 @@ export default function SummarySection({ fileId, initialSummaries }) {
     detailed: null
   });
 
-  // Update global state when summaries change
   useEffect(() => {
     if (fileId && summaries) {
       globalSummaryState.summaries[fileId] = summaries;
@@ -77,7 +75,7 @@ export default function SummarySection({ fileId, initialSummaries }) {
   useEffect(() => {
     console.log('📋 INITIAL SUMMARIES CHECK: initialSummaries=', initialSummaries);
     if (initialSummaries && Object.keys(initialSummaries).length > 0) {
-      // Check if these are real summaries or just default "not available" text
+
       const hasRealSummaries = Object.values(initialSummaries).some(summary => 
         summary && 
         !summary.includes('not available') && 
@@ -442,7 +440,6 @@ export default function SummarySection({ fileId, initialSummaries }) {
     const apiType = getApiType(type);
     console.log(`📋 GENERATE SUMMARY: API type=${apiType}`);
 
-    // Set loading state and start at 0%
     setGenerationStatus(prev => ({
       ...prev,
       [type]: { 

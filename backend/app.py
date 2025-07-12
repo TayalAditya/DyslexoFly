@@ -16,17 +16,14 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 print(f"UPLOAD FOLDER PATH: {UPLOAD_FOLDER}")
 
-# Ensure directory exists
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-# Use the same audio output directory as TTS service
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 AUDIO_OUTPUTS_DIR = os.path.join(BASE_DIR, 'audio_outputs')
 os.makedirs(AUDIO_OUTPUTS_DIR, exist_ok=True)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['AUDIO_OUTPUTS_DIR'] = AUDIO_OUTPUTS_DIR
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max upload size
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 DEFAULT_LANGUAGE = 'en-us'
 DEFAULT_GENDER = 'female'
