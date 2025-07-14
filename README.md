@@ -58,7 +58,7 @@ DyslexoFly is an innovative AI-powered educational platform designed to make lea
 
 ### **Try It Now!**
 🎯 **Visit**: [https://dyslexofly.vercel.app](https://dyslexofly.vercel.app)  
-📤 **Upload** any document (PDF, DOCX, TXT, Image)  
+📤 **Upload** any document (PDF, DOCX, TXT)  
 🎵 **Generate** AI summaries and audio  
 📱 **Access** from any device - mobile, tablet, or desktop  
 
@@ -86,8 +86,7 @@ DyslexoFly is an innovative AI-powered educational platform designed to make lea
 - **Text Search & Navigation**: Find and highlight text easily
 
 ### 📄 **Document Processing**
-- **Multi-Format Support**: PDF, DOCX, TXT, and images
-- **OCR Technology**: Text extraction from images (Tesseract)
+- **Multi-Format Support**: PDF, DOCX, TXT
 - **Batch Processing**: Handle multiple documents
 - **Enhanced PDF Generation**: Professional PDFs with logo, metadata, and GitHub links
 - **Unicode Support**: Proper handling of Hindi and other languages
@@ -112,7 +111,6 @@ Python Flask + AI/ML Pipeline
 ├── Edge-TTS (Microsoft TTS)
 ├── PyPDF2 + pdfplumber (PDF Processing)
 ├── python-docx (DOCX Processing)
-├── Pytesseract (OCR)
 └── LangDetect (Language Detection)
 ```
 
@@ -189,7 +187,7 @@ DyslexoFly/
 ## 🎯 Usage Guide
 
 ### **1. Document Upload**
-- Drag & drop or select files (PDF, DOCX, TXT, Images)
+- Drag & drop or select files (PDF, DOCX, TXT)
 - Automatic format detection and processing
 - Real-time upload progress tracking
 
